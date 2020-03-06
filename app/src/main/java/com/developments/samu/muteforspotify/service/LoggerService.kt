@@ -220,13 +220,15 @@ class LoggerService : Service() {
     private fun mute() {
         isMuted = true
         previousVolume = getMusicVolume()
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
+        else audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0)
     }
 
     private fun unmute() {
         isMuted = false
         if (previousVolume == 0 || getMusicVolume() != 0) return
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, previousVolume, 0)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0)
+        else audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, previousVolume, 0)
     }
 
     private fun logAdMuted() {
