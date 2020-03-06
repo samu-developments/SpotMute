@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">SpotMute</string>
+    <string name="tile_mute">Mute ads</string>
+
+    <string name="mute_info">Enable the Mute service to automagically mute Spotify ads.\n\nAds playing after you skip a track or ads on Spotify startup cannot be muted.\n\nFor devices with aggressive battery saving (especially Huawei/Samsung/Xiaomi) please read up on this site before you give a bad rating: \n\ndontkillmyapp.com\n\nYou can check the notification for last detected song. If the song is not correct the app is being killed/Spotify has bugged out and does not report any new songs. \n\nIf somehow ads are playing anyway or songs gets muted, check the Play Store description on countermeasures to take.\n\nFor easy access check out the widget and Quick Settings tile.</string>
+    <string name="mute_info_ad_counter">Total ads muted: %1$d</string>
+    <string name="status_enabled">Muting ads</string>
+    <string name="status_disabled">Ads are playing</string>
+
+    <!-- Notification -->
+    <string name="notif_channel_name">Ad muting service</string>
+    <string name="notif_channel_description">This is the visible notification when ad muting is turned on.</string>
+    <string name="notif_action_title_stop">Stop</string>
+    <string name="notif_action_title_mute">Mute</string>
+    <string name="notif_action_title_unmute">Unmute</string>
+    <string name="notif_content_muting">Currently muting ad!</string>
+    <string name="notif_content_listening">Ads muted this session: %1$d</string>
+    <string name="notif_last_detected_song">Last detected song:</string>
+
+    <!-- Preferences -->
+    <string name="pref_first_launch_key">first_launch_key</string>
+
+    <!-- Dialog -->
+    <string name="dialog_broadcast_title">Enable Device Broadcast Status</string>
+    <string name="dialog_broadcast_message">Mute for Spotify needs \'Device Broadcast Status\' enabled in
+        Spotify to work. Go to Spotify settings and enable it.</string>
+    <string name="dialog_broadcast_positive">Open Spotify</string>
+    <string name="dialog_broadcast_negative">I have enabled it!</string>
+    <string name="dialog_package_title">Spotify not installed</string>
+    <string name="dialog_package_message">Spotify is required for this app to work.</string>
+    <string name="dialog_package_negative">Exit</string>
+    <string name="widget_content_description">Mute widget</string>
+    <string name="dialog_lite_title">Spotify Lite not supported!</string>
+    <string name="dialog_lite_message">Ad detection is unfortunately not possible in Spotify Lite. Please use the full Spotify app.\n\nThis app will exit!</string>
+    <string name="dialog_lite_negative">Exit</string>
+    <string name="menu_mute_delay">Unmute delay</string>
+    <string name="dialog_delay_title">Unmute Delay</string>
+    <string name="dialog_delay_message">Adjust the unmute buffer, in case you hear the last part of an ad. Default 500 ms.</string>
+    <string name="dialog_delay_negative">Cancel</string>
+    <string name="dialog_delay_positive">Set buffer</string>
+    <string name="notif_error_detecting_ads">Error, cannot detect ads!</string>
+
+</resources>

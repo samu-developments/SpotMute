@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools" package="com.developments.samu.muteforspotify">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <application
+            android:name=".MuteApplication"
+            android:allowBackup="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:roundIcon="@mipmap/ic_launcher"
+            android:supportsRtl="true"
+            android:theme="@style/AppTheme" tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+
+            </intent-filter>
+        </activity>
+
+        <service
+                android:name=".service.MuteTileService"
+                android:icon="@drawable/ic_tile_volume_off"
+                android:label="@string/tile_mute"
+                android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+        <service
+                android:name=".service.LoggerService"
+                android:enabled="true" />
+
+        <receiver android:name=".MuteWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                    android:name="android.appwidget.provider"
+                    android:resource="@xml/widget" />
+        </receiver>
+    </application>
+
+
+
+</manifest>
