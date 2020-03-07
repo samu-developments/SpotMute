@@ -10,7 +10,4 @@ data class Song(
         val playbackPosition: Int,
         val playing: Boolean,
         val timeSent: Long,
-        val registeredTime: Long,
-        var timeLeft: Long = 0L,
-        var endTime: Long = 0L,
-        var timeMuted: Long = 0L)
+        val registeredTime: Long)

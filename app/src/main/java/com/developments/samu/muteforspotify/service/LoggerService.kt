@@ -125,8 +125,10 @@ class LoggerService : Service() {
 
     private fun actionUnmute() {
         setUnmute(delay = false)
-        if (lastSong.endTime - System.currentTimeMillis() > 0) {
-            setMuteTimer(lastSong.endTime - System.currentTimeMillis())  // set a new mute timer, if song still playing
+        val endTime = lastSong.timeSent + (lastSong.length - lastSong.playbackPosition)
+
+        if (endTime - System.currentTimeMillis() > 0) {
+            setMuteTimer(endTime - System.currentTimeMillis())  // set a new mute timer, if song still playing
         }
         notifStatus(lastSong)
     }
@@ -181,7 +183,6 @@ class LoggerService : Service() {
             muteHandler.removeCallbacksAndMessages(null)  // song is paused, remove timer
             isPaused = true
         }
-        song.endTime = song.timeSent + (song.length - song.playbackPosition)
         lastSong = song  // keep track of the last logged song
 
     }
