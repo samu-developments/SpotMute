@@ -55,7 +55,7 @@ class LoggerService : Service() {
         0L
     )
 
-    // when used clicks the notification
+    // when user clicks the notification
     private val notifPendingIntentClick by lazy {
         PendingIntent.getActivity(
             this,
@@ -104,7 +104,7 @@ class LoggerService : Service() {
     // dynamically create the notification action mute/unmute, and set the text based on if it is muted or not
     private fun createActionMute() =
         NotificationCompat.Action.Builder(
-            R.drawable.ic_clear,
+            if (isMuted) R.drawable.ic_volume_unmute else R.drawable.ic_volume_mute,
             if (isMuted) getString(R.string.notif_action_title_unmute) else  getString(R.string.notif_action_title_mute),
             notifPendingIntentMute
         )
