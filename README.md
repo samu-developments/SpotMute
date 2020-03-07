@@ -1,5 +1,4 @@
-# SpotMute
-Mute Spotify ads
+# SpotMute - Mute Spotify ads
 
 https://play.google.com/store/apps/details?id=com.developments.samu.muteforspotify
 
@@ -11,7 +10,7 @@ ad is supposed to play.
 
 Spotify documentation: https://developer.spotify.com/documentation/android/guides/android-media-notifications/
 
-All muting logic is done in [LoggerService] (app/src/main/java/com/developments/samu/muteforspotify/service/LoggerService.kt)
+All muting logic is done in [LoggerService.](app/src/main/java/com/developments/samu/muteforspotify/service/LoggerService.kt)
 
 
 Spotify media intent:
@@ -25,7 +24,7 @@ Spotify media intent:
 | length           | Integer | Length of the track, in seconds     |
 | playing          | Boolean | True if playing, false if paused    |
 | playbackPosition | Integer | The current playback position in ms |
-| timeSent         | Long    | Time broadcast posted               |
+| timeSent         | Long    | Time broadcast posted in ms         |
 
 
 Basic concept:
@@ -38,4 +37,4 @@ Basic concept:
 
 
 
-Note that media notifications need to be enabled manually in the Spotify app.
+Note that media notifications (Device Broadcast Status) need to be enabled manually in the Spotify app.
