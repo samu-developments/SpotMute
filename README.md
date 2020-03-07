@@ -16,8 +16,9 @@ All muting logic is done in [LoggerService] (app/src/main/java/com/developments/
 
 Spotify media intent:
 
-| id               | String  | A Spotify URI for the track         |
+| Intent extra     | Type    | Description                         |
 | ---------------- | ------- | ----------------------------------- |
+| id               | String  | A Spotify URI for the track         |
 | artist           | String  | The track artist                    |
 | album            | String  | The album name                      |
 | track            | String  | The track name                      |
