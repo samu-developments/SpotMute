@@ -118,16 +118,6 @@ class LoggerService : Service() {
         addAction(createActionMute())  // dynamically add mute/unmute action
     }
 
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when (intent?.action) {
-            ACTION_START_FOREGROUND -> startLoggerService()
-            ACTION_STOP -> stopSelf()
-            ACTION_MUTE -> if (getMusicVolume() == 0) actionUnmute() else actionMute()
-        }
-        return START_STICKY
-    }
-
     private fun actionMute() {
         setMute()
         notifStatus(lastSong)
@@ -141,7 +131,15 @@ class LoggerService : Service() {
         notifStatus(lastSong)
     }
 
-    // start backgroundReceiver. Start foreground service if specified
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        when (intent?.action) {
+            ACTION_START_FOREGROUND -> startLoggerService()
+            ACTION_STOP -> stopSelf()
+            ACTION_MUTE -> if (getMusicVolume() == 0) actionUnmute() else actionMute()
+        }
+        return START_STICKY
+    }
+
     private fun startLoggerService() {
         if (running) return
         registerReceiver(spotifyReceiver, Spotify.INTENT_FILTER)  // start backgroundReceiver for picking up Spotify intents
@@ -156,10 +154,20 @@ class LoggerService : Service() {
 
     private fun getMusicVolume() = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
 
-    /**
-     * If a NEW, PLAYING song is detected: check if need to toggle sound, add register song.
-     * If the song was previously registered but paused (and now playing): register it and set isPaused to false
-     * If the song is PAUSED (song.playing == false): unregister song
+    /*
+    Here is where most of the fun happens; the main muting/unmuting logic. Things to consider:
+     1. Spotify sends broadcast when playback changes; play/pause/next track (see https://developer.spotify.com/documentation/android/guides/android-media-notifications/)
+     2. Spotify does not tell you when an ad is playing..
+     3. ..but we can figure out when the song is supposed to end easily by taking current time + remaining playback time.
+     4. Then just mute when the song finishes and no new song is detected, and finally unmute when a new song is detected. Easy right?
+
+     The fun stuff:
+     5. Spotify often send multiple intents, with only 10-100 ms in between. They can arrive in random order and seems to overload the muting logic if it is not handled
+     6. The intent arrives before the current song/ad is finished playing; unmuting needs a small delay, otherwise the last ~.5 sec of an ad is heard. In the end this delay is not very deterministic,
+        it depends on how fast the intent arrived, which is device/environment specific. Too long delay mutes the start of the new song.
+     7. Similarly mute a bit before the current song is supposed to finish, otherwise the user might hear an ad.
+     8. Muting with a timer (handler + delayed execution), canceling, posting new tasks, seems not to be too reliable.
+     9. Users have to whitelist the app otherwise the service is killed and can't do anything.
      */
 
     private fun log(song: Song) {
@@ -167,7 +175,7 @@ class LoggerService : Service() {
             if (song.id == lastSong.id && !isPaused) return  // spotify spamming; sending (almost) duplicate entries
             setUnmute(delay = true)  // turn on volume with delay
             isPaused = false
-            setMuteTimer(song.length.toLong() - song.playbackPosition)  // user manually muted then unmuted, post new mute timer
+            setMuteTimer(song.length.toLong() - song.playbackPosition)
             notifStatus(song)  // show that currently not muting ad, recently detected song
         } else {
             muteHandler.removeCallbacksAndMessages(null)  // song is paused, remove timer
@@ -178,14 +186,6 @@ class LoggerService : Service() {
 
     }
 
-    /**
-     * We want to restore/mute the volume, but:
-     * 1. It might be muted by the user -> keep it muted
-     * 2. It might be muted by the service then turned up by the user during the ad -> keep at same level (do nothing). Or not muted between song skips.
-     * 3. It might be muted by this service -> restore previous volume level
-     * 4. This service asks to mute the volume
-     *
-     */
     // wrapper for unmute, removes callbacks
     private fun setUnmute(delay: Boolean = true) {
         isMuted = false
@@ -201,6 +201,7 @@ class LoggerService : Service() {
         else unmute()
     }
 
+    // set a delayed muting
     private fun setMuteTimer(delay: Long) {
         // remove any pending mute requests
         muteHandler.removeCallbacksAndMessages(null)
@@ -211,6 +212,7 @@ class LoggerService : Service() {
         }, delay - 700L)
     }
 
+    // mute directly from notification
     private fun setMute() {
         // remove any pending mute requests
         muteHandler.removeCallbacksAndMessages(null)
