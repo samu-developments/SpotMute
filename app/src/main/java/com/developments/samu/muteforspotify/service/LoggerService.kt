@@ -33,7 +33,6 @@ class LoggerService : Service() {
 
     private var isPaused = false
     private var isMuted = false
-    private var previousVolume = 0
     private var adsMutedCounter = 0
 
     private val prefs by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
@@ -150,7 +149,6 @@ class LoggerService : Service() {
             startForeground(NOTIFICATION_ID, this.build())
         }
         running = true
-        previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         updateWidgets(this)
     }
 
@@ -222,16 +220,12 @@ class LoggerService : Service() {
 
     private fun mute() {
         isMuted = true
-        previousVolume = getMusicVolume()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
-        else audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0)
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
     }
 
     private fun unmute() {
         isMuted = false
-        if (previousVolume == 0 || getMusicVolume() != 0) return
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0)
-        else audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, previousVolume, 0)
+        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0)
     }
 
     private fun logAdMuted() {
