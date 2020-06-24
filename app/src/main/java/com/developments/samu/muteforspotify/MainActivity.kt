@@ -130,16 +130,9 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.enable_skip -> {
-                if(item.isChecked()) {
-                    // If item already checked then unchecked it
-                    item.setChecked(false)
-                    prefs.applyPref(Pair(LoggerService.ENABLE_SKIP_KEY, false))
-                }
-                else {
-                    // If item is unchecked then checked it
-                    item.setChecked(true)
-                    prefs.applyPref(Pair(LoggerService.ENABLE_SKIP_KEY, true))
-                }
+                if (item.isChecked) prefs.applyPref(Pair(LoggerService.ENABLE_SKIP_KEY, false))
+                else prefs.applyPref(Pair(LoggerService.ENABLE_SKIP_KEY, true))
+                item.setChecked(!item.isChecked)
                 true
             }
             else -> super.onOptionsItemSelected(item)
