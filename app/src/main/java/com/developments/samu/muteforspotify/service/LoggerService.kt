@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.SystemClock
+import android.util.Log
 import android.view.KeyEvent
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -118,7 +119,7 @@ class LoggerService : Service() {
         setMute()
     }
 
-    // notification action 'unmute'
+    // notification action 'unmute'. Sets a new mute timer if song is not finished
     private fun actionUnmute() {
         // unmute without delay (also updates notification)
         setUnmuteTimer(delay = 0L)
@@ -143,15 +144,16 @@ class LoggerService : Service() {
     private fun startLoggerService() {
         if (running) return
         registerReceiver(spotifyReceiver, Spotify.INTENT_FILTER)  // start backgroundReceiver for picking up Spotify intents
-        createBaseNotification().run {
+        createBaseNotification().apply {
             setContentTitle(getString(R.string.notif_error_detecting_ads))  // not detected any songs yet, show warning
-            startForeground(NOTIFICATION_ID, this.build())
+        }.also {
+            startForeground(NOTIFICATION_ID, it.build())
         }
         running = true
         updateWidgets(this)
 
         // Unmute to begin with
-        unmute()
+        // unmute() this updates the notification warning of not detecting any ads, comment out for now
     }
 
     private fun getMusicVolume() = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
@@ -177,27 +179,30 @@ class LoggerService : Service() {
         setNotificationStatus(song)  // update detected song
 
         if (song.playing) {
-            if (isMuted && !waitForUnmute) {
-                // turn on volume. Use delay if we are not skipping ads
-                if (prefs.getBoolean(ENABLE_SKIP_KEY, ENABLE_SKIP_DEFAULT)) {
-                    setUnmuteTimer(delay = 0L)
+            // if not already waiting to be unmuted
+            if (!waitForUnmute) {
+                if (isMuted) {  // is muted -> unmute
+                    // turn on volume. Use delay if we are not skipping ads
+                    if (prefs.getBoolean(ENABLE_SKIP_KEY, ENABLE_SKIP_DEFAULT)) {
+                        setUnmuteTimer(delay = 0L)
+                    } else {
+                        // We need to correct for the Spotify broadcast propagation delay to get
+                        // a more consistent unmute delay
+                        val propagation_delay = System.currentTimeMillis() - lastSong.timeSent
+                        Log.d(LOG_TAG, "Prop delay: ${propagation_delay}")
+                        setUnmuteTimer(delay = prefs.getInt(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT).toLong() - propagation_delay)
+                    }
+                } else {  // not muted -> mute
+                    // time left minus prop delay
+                    val remaining = (lastSong.length - lastSong.playbackPosition) - (System.currentTimeMillis() - lastSong.timeSent)
+                    // if (remaining >= 1000L) { }  // should always have a mute timer even if it is only a short time left of song, might be an ad afterwards
+                    setMuteTimer(remaining)
                 }
-                else {
-                    // We need to correct for the Spotify broadcast propagation delay to get
-                    // a more consistent unmute delay
-                    val propagation_delay = System.currentTimeMillis() - lastSong.timeSent
-                    setUnmuteTimer(delay = prefs.getInt(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT).toLong() - propagation_delay)
-                }
-            }
-
-            val remaining = lastSong.timeSent + (lastSong.length - lastSong.playbackPosition) - System.currentTimeMillis()
-            if (remaining >= 3000L && !isMuted && !waitForUnmute) {
-                setMuteTimer(remaining)
             }
         }
+        // song is paused -> unmute ('reset' muting logic: isMuted=false, waitForUnmute=false).
         else {
-            unmute()
-            handler.removeCallbacksAndMessages(null)  // song is paused, remove timer
+            setUnmuteTimer(delay = 0L)
         }
     }
 
@@ -258,22 +263,6 @@ class LoggerService : Service() {
         prefs.applyPref(Pair(
             PREF_KEY_ADS_MUTED_COUNTER,
             prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER, 0) + 1))
-    }
-
-    private fun pause() {
-        var event = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PAUSE)
-        audioManager.dispatchMediaKeyEvent(event)
-
-        event = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PAUSE)
-        audioManager.dispatchMediaKeyEvent(event)
-    }
-
-    private fun play() {
-        var event = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY)
-        audioManager.dispatchMediaKeyEvent(event)
-
-        event = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY)
-        audioManager.dispatchMediaKeyEvent(event)
     }
 
     private fun next() {
