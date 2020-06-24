@@ -34,8 +34,9 @@
     <string name="dialog_lite_message">Ad detection is unfortunately not possible in Spotify Lite. Please use the full Spotify app.\n\nThis app will exit!</string>
     <string name="dialog_lite_negative">Exit</string>
     <string name="menu_mute_delay">Unmute delay</string>
+    <string name="menu_enable_skip">Enable Skip</string>
     <string name="dialog_delay_title">Unmute Delay</string>
-    <string name="dialog_delay_message">Adjust the unmute buffer, in case you hear the last part of an ad. Default 500 ms.</string>
+    <string name="dialog_delay_message">Adjust the unmute buffer, in case you hear the last part of an ad. Default 1500 ms.</string>
     <string name="dialog_delay_negative">Cancel</string>
     <string name="dialog_delay_positive">Set buffer</string>
     <string name="notif_error_detecting_ads">Error, cannot detect ads!</string>

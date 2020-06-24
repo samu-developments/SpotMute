@@ -5,4 +5,10 @@
         android:id="@+id/menu_delay"
         android:title="@string/menu_mute_delay"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/enable_skip"
+        android:checkable="true"
+        android:enabled="true"
+        android:title="@string/menu_enable_skip"
+        android:visible="true" />
 </menu>

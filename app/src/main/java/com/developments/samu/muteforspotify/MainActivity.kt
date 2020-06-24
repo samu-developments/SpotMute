@@ -111,15 +111,35 @@ class MainActivity : AppCompatActivity() {
         else toggleHelper()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val item = menu.findItem(R.id.enable_skip)
+        item.setChecked(prefs.getBoolean(LoggerService.ENABLE_SKIP_KEY, LoggerService.ENABLE_SKIP_DEFAULT))
+        return true
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return when (item?.itemId) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
             R.id.menu_delay -> {
                 showDelayDialog()
+                true
+            }
+
+            R.id.enable_skip -> {
+                if(item.isChecked()) {
+                    // If item already checked then unchecked it
+                    item.setChecked(false)
+                    prefs.applyPref(Pair(LoggerService.ENABLE_SKIP_KEY, false))
+                }
+                else {
+                    // If item is unchecked then checked it
+                    item.setChecked(true)
+                    prefs.applyPref(Pair(LoggerService.ENABLE_SKIP_KEY, true))
+                }
                 true
             }
             else -> super.onOptionsItemSelected(item)
