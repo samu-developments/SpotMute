@@ -114,20 +114,21 @@ class LoggerService : Service() {
 
     // notification action 'mute'
     private fun actionMute() {
+        // mute without delay (also updates notification)
         setMute()
     }
 
     // notification action 'unmute'
     private fun actionUnmute() {
+        // unmute without delay (also updates notification)
         setUnmuteTimer(delay = 0L)
+
         // check if song is not finished playing, in that case set a new mute timer
         val endTime = lastSong.timeSent + (lastSong.length - lastSong.playbackPosition)
         val timeLeft = endTime - System.currentTimeMillis()
-
         if (timeLeft > 0) {
             setMuteTimer(timeLeft)  // set a new mute timer, if song still playing
         }
-        notifStatus(lastSong)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -173,7 +174,7 @@ class LoggerService : Service() {
 
     private fun log(song: Song) {
         lastSong = song  // keep track of the last logged song
-        notifStatus(song)  // update detected song
+        setNotificationStatus(song)  // update detected song
 
         if (song.playing) {
             if (isMuted && !waitForUnmute) {
@@ -242,14 +243,14 @@ class LoggerService : Service() {
     @Synchronized private fun mute() {
         isMuted = true
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
-        notifStatus(lastSong)  // show that currently muting ad, recently detected song
+        setNotificationStatus(lastSong)  // show that currently muting ad, recently detected song
     }
 
     @Synchronized private fun unmute() {
         isMuted = false
         waitForUnmute = false
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0)
-        notifStatus(lastSong)  // show that currently muting ad, recently detected song
+        setNotificationStatus(lastSong)  // show that currently muting ad, recently detected song
     }
 
     private fun logAdMuted() {
@@ -290,7 +291,8 @@ class LoggerService : Service() {
         }
     }
 
-    private fun notifStatus(song: Song? = null) {
+    // Show notification status based on 'isMuted'. If song is passed, show it as the last detected song
+    private fun setNotificationStatus(song: Song?) {
         createBaseNotification().apply {
             setContentTitle(if (isMuted) getString(R.string.notif_content_muting) else getString(R.string.notif_content_listening, adsMutedCounter))
             song?.let { setContentText("${getString(R.string.notif_last_detected_song)} ${song.track}") }
