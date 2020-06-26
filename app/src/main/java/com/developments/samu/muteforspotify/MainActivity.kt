@@ -46,12 +46,12 @@ class MainActivity : AppCompatActivity() {
             setTitle(getString(R.string.dialog_broadcast_title))
             setMessage(getString(R.string.dialog_broadcast_message))
             setPositiveButton(getString(R.string.dialog_broadcast_positive)) { _, _ ->
-                prefs.edit(true) { putBoolean(IS_FIRST_LAUNCH_KEY, false) }
                 // Intent.ACTION_APPLICATION_PREFERENCES added in api 24. On API < 24 it will just open Spotify.
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) startActivity(Spotify.INTENT_SPOTIFY_SETTINGS)
                 else {
-                    val intent = packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)
-                    if (intent != null) startActivity(intent)
+                    packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
+                        startActivity(it)
+                    }
                 }
 
             }
