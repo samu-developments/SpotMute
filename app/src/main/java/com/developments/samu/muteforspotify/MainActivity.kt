@@ -10,10 +10,10 @@ import android.view.MenuItem
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.developments.samu.muteforspotify.service.LoggerService
 import com.developments.samu.muteforspotify.utilities.Spotify
-import com.developments.samu.muteforspotify.utilities.applyPref
 import com.developments.samu.muteforspotify.utilities.isPackageInstalled
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
             setTitle(getString(R.string.dialog_broadcast_title))
             setMessage(getString(R.string.dialog_broadcast_message))
             setPositiveButton(getString(R.string.dialog_broadcast_positive)) { _, _ ->
-                prefs.applyPref(Pair(IS_FIRST_LAUNCH_KEY, false))
+                prefs.edit(true) { putBoolean(IS_FIRST_LAUNCH_KEY, false) }
                 // Intent.ACTION_APPLICATION_PREFERENCES added in api 24. On API < 24 it will just open Spotify.
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) startActivity(Spotify.INTENT_SPOTIFY_SETTINGS)
                 else {
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
             setNegativeButton(getString(R.string.dialog_broadcast_negative)) { dialog, _ ->
                 dialog.dismiss()
                 toggleHelper()
-                prefs.applyPref(Pair(IS_FIRST_LAUNCH_KEY, false))
+                prefs.edit(true) { putBoolean(IS_FIRST_LAUNCH_KEY, false) }
             }
         }.create().also {
             it.show()
@@ -130,9 +130,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.enable_skip -> {
-                if (item.isChecked) prefs.applyPref(Pair(LoggerService.ENABLE_SKIP_KEY, false))
-                else prefs.applyPref(Pair(LoggerService.ENABLE_SKIP_KEY, true))
-                item.setChecked(!item.isChecked)
+                item.setChecked(!item.isChecked)  // pressing checkbox toggles it
+                prefs.edit(true) { putBoolean(LoggerService.ENABLE_SKIP_KEY, item.isChecked) }
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -151,8 +150,8 @@ class MainActivity : AppCompatActivity() {
             setMessage(getString(R.string.dialog_delay_message))
             setView(inflatedView)
             setPositiveButton(getString(R.string.dialog_delay_positive)) { _, _ ->
-                edDelay.text.toString().toIntOrNull()?.let {
-                    prefs.applyPref(Pair(LoggerService.MUTE_DELAY_BUFFER_KEY, it))
+                edDelay.text.toString().toLongOrNull()?.let {
+                    prefs.edit(true) { putLong(LoggerService.MUTE_DELAY_BUFFER_KEY, it) }
                 }
             }
             setNegativeButton(getString(R.string.dialog_delay_negative)) { dialog, _ ->
