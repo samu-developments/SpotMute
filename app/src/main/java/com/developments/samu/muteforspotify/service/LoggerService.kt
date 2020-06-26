@@ -118,12 +118,14 @@ class LoggerService : Service() {
 
     // notification action 'mute'
     private fun actionMute() {
+        handler.removeCallbacksAndMessages(null)
         // mute without delay (also updates notification)
-        setMute()
+        mute()
     }
 
     // notification action 'unmute'. Sets a new mute timer if song is not finished
     private fun actionUnmute() {
+        handler.removeCallbacksAndMessages(null)
         // unmute without delay (also updates notification)
         setUnmuteTimer(delay = 0L)
 
@@ -178,6 +180,9 @@ class LoggerService : Service() {
      7. Similarly mute a bit before the current song is supposed to finish, otherwise the user might hear an ad.
      8. Muting with a timer (handler + delayed execution), canceling, posting new tasks, seems not to be too reliable.
      9. Users have to whitelist the app otherwise the service is killed and can't do anything.
+
+     10. The need for two handlers, one for muting and one for unmuting is because we want to delay the
+     unmuting, but at the same time set a new timer for muting (for the new song).
      */
 
     private fun log(song: Song) {
@@ -186,8 +191,11 @@ class LoggerService : Service() {
         lastSong = song  // keep track of the last logged song
         setNotificationStatus(song)  // update detected song
 
-        if (song.playing) handleNewSongPlaying(song)  // ned to set new timer, and after an ad unmute device
-        else handleSongNotPlaying(song)  // need to remove timer
+        when {
+            song.playing -> handleNewSongPlaying(song)  // ned to set new timer, and after an ad unmute device
+            else -> handleSongNotPlaying(song)  // need to remove timer
+        }
+
     }
 
     // remove all timers.
@@ -197,6 +205,7 @@ class LoggerService : Service() {
     }
 
     private fun handleNewSongPlaying(song: Song) {
+        handler.removeCallbacksAndMessages(null)
         if (isMuted) {  // is muted -> unmute
             Log.d(LOG_TAG, "log:isMuted, (so unmute either with delay or immediately)")
             // turn on volume. Use delay if we are not skipping ads
@@ -207,14 +216,8 @@ class LoggerService : Service() {
             } else {
                 // We need to correct for the Spotify broadcast propagation delay to get
                 // a more consistent unmute delay
-                val propagationDelay =
-                    System.currentTimeMillis() - song.timeSent  // usually around 10-20 ms, not much..
-                setUnmuteTimer(
-                    delay = prefs.getLong(
-                        MUTE_DELAY_BUFFER_KEY,
-                        MUTE_DELAY_BUFFER_DEFAULT
-                    ) - propagationDelay
-                )
+                val propagationDelay = System.currentTimeMillis() - song.timeSent  // usually around 10-20 ms, not much..
+                setUnmuteTimer(delay = prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT) - propagationDelay)
             }
         }
         // start new mute timer
@@ -230,22 +233,17 @@ class LoggerService : Service() {
     // wrapper for unmute, removes callbacks
     private fun setUnmuteTimer(delay: Long) {
         Log.d(LOG_TAG, "setUnmuteTimer:delay: ${delay}")
-        // remove any pending unmute requests
-        handler.removeCallbacksAndMessages(null)
 
         // Spotify sends an intent of a new playing song before the ad is completed -> wait some hundred ms before unmuting
         handler.postDelayed({
             unmute()
         }, delay)
-
-
     }
 
     // set a delayed muting
     private fun setMuteTimer(delay: Long) {
         Log.d(LOG_TAG, "setMuteTimer:Setting mute timer in ${delay}")
         // remove any pending mute requests
-        handler.removeCallbacksAndMessages(null)
         handler.postDelayed({
             Log.d(LOG_TAG, "setMuteTimer:Now calling delayed muting")
             mute()
@@ -258,22 +256,9 @@ class LoggerService : Service() {
         }, delay)
     }
 
-    // mute directly from notification
-    private fun setMute() {
-        // remove any pending mute requests
-        handler.removeCallbacksAndMessages(null)
-        mute()
-    }
-
-    private fun setUnmute() {
-        // remove any pending mute requests
-        handler.removeCallbacksAndMessages(null)
-        unmute()
-    }
-
     @Synchronized
     private fun mute() {
-        Log.d(LOG_TAG, "mute:Is muting")
+        Log.d(LOG_TAG, "mute:Muted")
         isMuted = true
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
         setNotificationStatus(lastSong)  // show that currently muting ad, recently detected song
@@ -294,7 +279,6 @@ class LoggerService : Service() {
             putInt(PREF_KEY_ADS_MUTED_COUNTER, prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER, 0) + 1)
         }
     }
-
 
     private fun next() {
         var event = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_NEXT)
