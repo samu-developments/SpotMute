@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity() {
 
         val inflatedView = layoutInflater.inflate(R.layout.dialog_delay, null)
         val edDelay = inflatedView.findViewById<EditText>(R.id.et_delay).apply {
-            hint = prefs.getInt(LoggerService.MUTE_DELAY_BUFFER_KEY, LoggerService.MUTE_DELAY_BUFFER_DEFAULT).toString()
+            hint = prefs.getLong(LoggerService.MUTE_DELAY_BUFFER_KEY, LoggerService.MUTE_DELAY_BUFFER_DEFAULT).toString()
         }
 
         dialog = AlertDialog.Builder(this).apply {

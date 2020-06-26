@@ -13,6 +13,7 @@ fun SharedPreferences.applyPref(pref: Pair<String, Any>) {
     when (pref.second) {
         is Boolean -> editor.putBoolean(pref.first, pref.second as Boolean)
         is Int -> editor.putInt(pref.first, pref.second as Int)
+        is Long -> editor.putLong(pref.first, pref.second as Long)
     }
     editor.apply()
 }
