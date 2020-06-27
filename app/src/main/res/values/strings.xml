@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SpotMute</string>
+    <string name="app_name">Mute for Spotify</string>
     <string name="tile_mute">Mute ads</string>
 
     <string name="mute_info">Enable the Mute service to automagically mute Spotify ads.\n\nAds playing after you skip a track or ads on Spotify startup cannot be muted.\n\nFor devices with aggressive battery saving (especially Huawei/Samsung/Xiaomi) please read up on this site before you give a bad rating: \n\ndontkillmyapp.com\n\nYou can check the notification for last detected song. If the song is not correct the app is being killed/Spotify has bugged out and does not report any new songs. \n\nIf somehow ads are playing anyway or songs gets muted, check the Play Store description on countermeasures to take.\n\nFor easy access check out the widget and Quick Settings tile.</string>
@@ -34,9 +34,9 @@
     <string name="dialog_lite_message">Ad detection is unfortunately not possible in Spotify Lite. Please use the full Spotify app.\n\nThis app will exit!</string>
     <string name="dialog_lite_negative">Exit</string>
     <string name="menu_mute_delay">Unmute delay</string>
-    <string name="menu_enable_skip">Enable Skip</string>
+    <string name="menu_enable_skip">Skip (tablet only, beta)</string>
     <string name="dialog_delay_title">Unmute Delay</string>
-    <string name="dialog_delay_message">Adjust the unmute buffer, in case you hear the last part of an ad. Default 1500 ms.</string>
+    <string name="dialog_delay_message">Adjust the unmute delay time, in case you hear the last part of an ad. Default 1500 ms.</string>
     <string name="dialog_delay_negative">Cancel</string>
     <string name="dialog_delay_positive">Set buffer</string>
     <string name="notif_error_detecting_ads">Error, cannot detect ads!</string>
