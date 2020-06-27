@@ -17,9 +17,8 @@ import com.developments.samu.muteforspotify.utilities.Spotify
 import com.developments.samu.muteforspotify.utilities.isPackageInstalled
 import kotlinx.android.synthetic.main.activity_main.*
 
-
+private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity() {
-
     private val loggerServiceIntentForeground by lazy { Intent(LoggerService.ACTION_START_FOREGROUND, Uri.EMPTY, this, LoggerService::class.java) }
     private val prefs by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
     private var dialog: AlertDialog? = null
@@ -72,7 +71,7 @@ class MainActivity : AppCompatActivity() {
             }
             setTitle(getString(R.string.dialog_lite_title))
             setMessage(getString(R.string.dialog_lite_message))
-            setNegativeButton(getString(R.string.dialog_lite_negative)) { dialog, _ ->
+            setNegativeButton(getString(R.string.dialog_lite_negative)) { _, _ ->
                 onForceExit()
             }
         }.create().also {
@@ -84,7 +83,7 @@ class MainActivity : AppCompatActivity() {
         dialog = AlertDialog.Builder(this).apply {
             setTitle(getString(R.string.dialog_package_title))
             setMessage(getString(R.string.dialog_package_message))
-            setNegativeButton(getString(R.string.dialog_package_negative)) { dialog, _ ->
+            setNegativeButton(getString(R.string.dialog_package_negative)) { _, _ ->
                 onForceExit()
             }
         }.create().also {
@@ -113,7 +112,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val item = menu.findItem(R.id.enable_skip)
-        item.setChecked(prefs.getBoolean(LoggerService.ENABLE_SKIP_KEY, LoggerService.ENABLE_SKIP_DEFAULT))
+        item.isChecked = prefs.getBoolean(LoggerService.ENABLE_SKIP_KEY, LoggerService.ENABLE_SKIP_DEFAULT)
         return true
     }
 
@@ -130,7 +129,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.enable_skip -> {
-                item.setChecked(!item.isChecked)  // pressing checkbox toggles it
+                item.isChecked = !item.isChecked  // pressing checkbox toggles it
                 prefs.edit(true) { putBoolean(LoggerService.ENABLE_SKIP_KEY, item.isChecked) }
                 true
             }
@@ -189,7 +188,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val IS_FIRST_LAUNCH_KEY = "first_launch"
-        const val SWITCH_IS_TOGGLED_KEY = "switch_toggled"
         const val PREF_KEY_ADS_MUTED_COUNTER = "ads_muted_counter"
 
     }

@@ -226,8 +226,7 @@ class LoggerService : Service() {
         // start new mute timer
         Log.d(LOG_TAG, "handleNewSongPlaying:set mute timer")
 
-        // time left minus prop delay
-        val remaining = (song.length - song.playbackPosition).toLong() // - (System.currentTimeMillis() - song.timeSent)
+        val remaining = (song.length - song.playbackPosition).toLong()
         setMuteTimer(remaining)
 
     }
@@ -247,7 +246,7 @@ class LoggerService : Service() {
         Log.d(LOG_TAG, "setMuteTimer:Setting mute timer in ${delay}")
         // remove any pending mute requests
         handler.postDelayed({
-            Log.d(LOG_TAG, "setMuteTimer:Now calling delayed muting")
+            Log.d(LOG_TAG, "setMuteTimer:Now muting")
             mute()
             handler.postDelayed({
                 Log.d(LOG_TAG, "setMuteTimer:Now logging delayed muting counter")
@@ -269,7 +268,6 @@ class LoggerService : Service() {
     @Synchronized
     private fun unmute() {
         Log.d(LOG_TAG, "unmute:Unmuted")
-
         isMuted = false
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0)
         setNotificationStatus(lastSong)  // show that currently muting ad, recently detected song
@@ -283,6 +281,7 @@ class LoggerService : Service() {
     }
 
     private fun next() {
+        Log.d(LOG_TAG, "NEXT CALLED -----------")
         var event = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_NEXT)
         audioManager.dispatchMediaKeyEvent(event)
 

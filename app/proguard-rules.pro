@@ -24,7 +24,3 @@
     public static *** v(...);
     public static *** d(...);
 }
-
--assumenosideeffects class com.developments.samu.muteforspotify.service.LoggerService {
-    public timeHelper(...);
-}
