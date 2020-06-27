@@ -5,3 +5,5 @@ externalNativeBuild
 /app/build/
 /.gradle/
 /local.properties
+/app/release/output.json
+/resources/com.spotify.music_8.5.57.1164_59252694_MinAPI16_(x86)(nodpi)_apklinker.com.apk

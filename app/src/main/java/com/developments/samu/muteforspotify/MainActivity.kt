@@ -1,23 +1,26 @@
 package com.developments.samu.muteforspotify
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.developments.samu.muteforspotify.service.LoggerService
 import com.developments.samu.muteforspotify.utilities.Spotify
 import com.developments.samu.muteforspotify.utilities.isPackageInstalled
 import kotlinx.android.synthetic.main.activity_main.*
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
+
 
 private const val TAG = "MainActivity"
+
 class MainActivity : AppCompatActivity() {
     private val loggerServiceIntentForeground by lazy { Intent(LoggerService.ACTION_START_FOREGROUND, Uri.EMPTY, this, LoggerService::class.java) }
     private val prefs by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
@@ -41,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showEnableBroadcastDialog() {
-        dialog = AlertDialog.Builder(ContextThemeWrapper(this, R.style.DialogTheme)).apply {
+        dialog = MaterialAlertDialogBuilder(this).apply {
             setTitle(getString(R.string.dialog_broadcast_title))
             setMessage(getString(R.string.dialog_broadcast_message))
             setPositiveButton(getString(R.string.dialog_broadcast_positive)) { _, _ ->
@@ -52,7 +55,6 @@ class MainActivity : AppCompatActivity() {
                         startActivity(it)
                     }
                 }
-
             }
             setNegativeButton(getString(R.string.dialog_broadcast_negative)) { dialog, _ ->
                 dialog.dismiss()
@@ -65,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showLiteNotSupportedDialog() {
-        dialog = AlertDialog.Builder(ContextThemeWrapper(this, R.style.DialogTheme)).apply {
+        dialog = MaterialAlertDialogBuilder(this).apply {
             setOnCancelListener {
                 onForceExit()
             }
@@ -80,7 +82,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showSpotifyNotInstalledDialog() {
-        dialog = AlertDialog.Builder(this).apply {
+        dialog = MaterialAlertDialogBuilder(this).apply {
             setTitle(getString(R.string.dialog_package_title))
             setMessage(getString(R.string.dialog_package_message))
             setNegativeButton(getString(R.string.dialog_package_negative)) { _, _ ->
@@ -140,11 +142,11 @@ class MainActivity : AppCompatActivity() {
     private fun showDelayDialog() {
 
         val inflatedView = layoutInflater.inflate(R.layout.dialog_delay, null)
-        val edDelay = inflatedView.findViewById<EditText>(R.id.et_delay).apply {
+        val edDelay = inflatedView.findViewById<TextInputEditText>(R.id.edit_text_delay).apply {
             hint = prefs.getLong(LoggerService.MUTE_DELAY_BUFFER_KEY, LoggerService.MUTE_DELAY_BUFFER_DEFAULT).toString()
         }
 
-        dialog = AlertDialog.Builder(this).apply {
+        dialog = MaterialAlertDialogBuilder(this).apply {
             setTitle(getString(R.string.dialog_delay_title))
             setMessage(getString(R.string.dialog_delay_message))
             setView(inflatedView)
