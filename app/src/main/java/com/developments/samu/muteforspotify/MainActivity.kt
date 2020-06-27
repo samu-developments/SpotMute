@@ -8,15 +8,15 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.developments.samu.muteforspotify.service.LoggerService
 import com.developments.samu.muteforspotify.utilities.Spotify
 import com.developments.samu.muteforspotify.utilities.isPackageInstalled
-import kotlinx.android.synthetic.main.activity_main.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 private const val TAG = "MainActivity"
@@ -178,9 +178,12 @@ class MainActivity : AppCompatActivity() {
         if (on) {
             this.startService(loggerServiceIntentForeground)
             tv_status.text = getString(R.string.status_enabled)
+            card_view_status.setCardBackgroundColor(ContextCompat.getColor(this, R.color.colorOk))
         } else {
             this.stopService(loggerServiceIntentForeground)
             tv_status.text = getString(R.string.status_disabled)
+            card_view_status.setCardBackgroundColor(ContextCompat.getColor(this, R.color.colorWarning))
+
         }
     }
 
