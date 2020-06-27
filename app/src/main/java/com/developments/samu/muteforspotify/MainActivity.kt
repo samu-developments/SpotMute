@@ -61,6 +61,7 @@ class MainActivity : AppCompatActivity() {
                 toggleHelper()
                 prefs.edit(true) { putBoolean(IS_FIRST_LAUNCH_KEY, false) }
             }
+            setCancelable(false)  // force user to take an action
         }.create().also {
             it.show()
         }
@@ -68,14 +69,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun showLiteNotSupportedDialog() {
         dialog = MaterialAlertDialogBuilder(this).apply {
-            setOnCancelListener {
-                onForceExit()
-            }
             setTitle(getString(R.string.dialog_lite_title))
             setMessage(getString(R.string.dialog_lite_message))
             setNegativeButton(getString(R.string.dialog_lite_negative)) { _, _ ->
                 onForceExit()
             }
+            setCancelable(false)  // force user to take an action
         }.create().also {
             it.show()
         }
@@ -88,6 +87,7 @@ class MainActivity : AppCompatActivity() {
             setNegativeButton(getString(R.string.dialog_package_negative)) { _, _ ->
                 onForceExit()
             }
+            setCancelable(false)  // force user to take an action
         }.create().also {
             it.show()
         }
