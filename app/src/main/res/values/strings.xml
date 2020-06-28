@@ -1,11 +1,12 @@
 <resources>
-    <string name="app_name">Mute for Spotify</string>
+    <string name="app_name">SpotMute</string>
     <string name="tile_mute">Mute ads</string>
 
     <string name="mute_info_background">Allow SpotMute to run in background!</string>
-    <string name="mute_info_dkma">Click to see how to from dontkillmyapp.com</string>
+    <string name="mute_info_dkma">Click to see how-to\nThanks dontkillmyapp.com</string>
     <string name="mute_info_skip_startup">Ads playing after you skip a track or ads on Spotify startup cannot be muted.</string>
 
+    <string name="ads_muted">Ads muted</string>
     <string name="mute_info_ad_counter">%1$d</string>
     <string name="status_enabled">Muting ads</string>
     <string name="status_disabled">Ads are playing</string>
@@ -25,7 +26,7 @@
 
     <!-- Dialog -->
     <string name="dialog_broadcast_title">Enable Device Broadcast Status</string>
-    <string name="dialog_broadcast_message">Mute for Spotify needs \'Device Broadcast Status\' enabled in
+    <string name="dialog_broadcast_message">SpotMute needs \'Device Broadcast Status\' enabled in
         Spotify to work. Go to Spotify settings and enable it.</string>
     <string name="dialog_broadcast_positive">Open Spotify</string>
     <string name="dialog_broadcast_negative">I have enabled it!</string>
