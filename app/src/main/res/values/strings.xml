@@ -2,7 +2,9 @@
     <string name="app_name">Mute for Spotify</string>
     <string name="tile_mute">Mute ads</string>
 
-    <string name="mute_info">Enable the Mute service to automagically mute Spotify ads.\n\nAds playing after you skip a track or ads on Spotify startup cannot be muted.\n\nFor devices with aggressive battery saving (especially Huawei/Samsung/Xiaomi) please read up on this site before you give a bad rating: \n\ndontkillmyapp.com\n\nYou can check the notification for last detected song. If the song is not correct the app is being killed/Spotify has bugged out and does not report any new songs. \n\nIf somehow ads are playing anyway or songs gets muted, check the Play Store description on countermeasures to take.\n\nFor easy access check out the widget and Quick Settings tile.</string>
+    <string name="mute_info_device">For devices with aggressive battery saving (especially Huawei/Samsung/Xiaomi) please read up on this site before you give a bad rating: \n\ndontkillmyapp.com\n\n%1$s</string>
+    <string name="mute_info_skip_startup">Ads playing after you skip a track or ads on Spotify startup cannot be muted.</string>
+
     <string name="mute_info_ad_counter">%1$d</string>
     <string name="status_enabled">Muting ads</string>
     <string name="status_disabled">Ads are playing</string>
