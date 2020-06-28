@@ -13,3 +13,8 @@ fun isPackageInstalled(packageName: String, packageManager: PackageManager): Boo
         } catch (e: PackageManager.NameNotFoundException) {
             false
         }
+class AppUtil {
+    companion object {
+        val ONE_SECOND_MS = 1000
+    }
+}
