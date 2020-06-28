@@ -21,7 +21,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 private const val TAG = "MainActivity"
 
-// TODO: https://dontkillmyapp.com/apidoc
 
 class MainActivity : AppCompatActivity() {
     private val loggerServiceIntentForeground by lazy { Intent(LoggerService.ACTION_START_FOREGROUND, Uri.EMPTY, this, LoggerService::class.java) }
@@ -37,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         card_view_help.setOnClickListener { DokiDialog.show(this@MainActivity) }
-
+        tv_help_manufacturer.text = getString(R.string.mute_info_manufacturer, Build.MANUFACTURER)
     }
 
     // If Spotify is installed; show a 'enable broadcast' dialog. If not

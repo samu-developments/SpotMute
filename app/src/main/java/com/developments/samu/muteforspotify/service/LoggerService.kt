@@ -186,7 +186,7 @@ class LoggerService : Service() {
      10. The need for two handlers, one for muting and one for unmuting is because we want to delay the
      unmuting, but at the same time set a new timer for muting (for the new song).
      */
-
+    // FIXME: does not handle 'reset' song (pressing previous button)
     private fun log(song: Song) {
         Log.d(LOG_TAG, "log:log called $song")
         if (song.id == lastSong.id && song.playing == lastSong.playing) return  // nothing new to do

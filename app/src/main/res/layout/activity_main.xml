@@ -15,7 +15,8 @@
         android:layout_marginRight="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:cardBackgroundColor="@color/colorWarning">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -61,7 +62,8 @@
         android:layout_marginRight="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/card_view_status">
+        app:layout_constraintTop_toBottomOf="@+id/card_view_status"
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -108,20 +110,51 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/card_view_counter"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintVertical_bias="0.0"
+        app:cardBackgroundColor="@color/colorInfo">
 
-        <TextView
-            android:id="@+id/tv_help"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginRight="4dp"
-            android:layout_marginBottom="4dp"
-            android:text="@string/mute_info_device"
-            android:textAlignment="center"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Information based on user phone, eg. Samsung/Huawei background killing" />
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tv_help_dkma"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/mute_info_dkma"
+                android:textAlignment="center"
+                app:layout_constraintBottom_toTopOf="@+id/tv_help_skip_startup"
+                app:layout_constraintTop_toTopOf="@id/tv_help_manufacturer"
+                app:layout_constraintVertical_bias="0.728"
+                tools:layout_editor_absoluteX="0dp"
+                tools:text="Allow app for running in background. See recommendations from dontkillmyapp.com" />
+
+            <TextView
+                android:id="@+id/tv_help_manufacturer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/mute_info_manufacturer"
+                android:textAlignment="center"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:layout_editor_absoluteX="0dp"
+                tools:text="Your manufacturer: %1$s" />
+
+            <TextView
+                android:id="@+id/tv_help_skip_startup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/mute_info_skip_startup"
+                android:textAlignment="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.853"
+                tools:layout_editor_absoluteX="0dp"
+                tools:text="Ads playing after you skip a track or ads on Spotify startup cannot be muted." />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.cardview.widget.CardView>
 
 
