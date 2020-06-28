@@ -36,7 +36,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         card_view_help.setOnClickListener { DokiDialog.show(this@MainActivity) }
-        tv_help_manufacturer.text = getString(R.string.mute_info_manufacturer, Build.MANUFACTURER)
     }
 
     // If Spotify is installed; show a 'enable broadcast' dialog. If not
