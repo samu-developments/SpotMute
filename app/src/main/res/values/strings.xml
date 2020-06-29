@@ -44,5 +44,6 @@
     <string name="dialog_delay_negative">Cancel</string>
     <string name="dialog_delay_positive">Set buffer</string>
     <string name="notif_error_detecting_ads">Error, cannot detect ads!</string>
+    <string name="menu_dkma">dontkillmyapp.com</string>
 
 </resources>

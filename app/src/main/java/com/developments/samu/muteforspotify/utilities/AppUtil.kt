@@ -16,5 +16,6 @@ fun isPackageInstalled(packageName: String, packageManager: PackageManager): Boo
 class AppUtil {
     companion object {
         val ONE_SECOND_MS = 1000
+        val DKMA_URL = "https://dontkillmyapp.com/"
     }
 }

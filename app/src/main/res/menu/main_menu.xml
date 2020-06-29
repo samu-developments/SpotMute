@@ -6,9 +6,12 @@
         android:title="@string/menu_mute_delay"
         app:showAsAction="never" />
     <item
-        android:id="@+id/enable_skip"
+        android:id="@+id/menu_skip"
         android:checkable="true"
-        android:enabled="true"
         android:title="@string/menu_enable_skip"
-        android:visible="true" />
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_dkma"
+        android:title="@string/menu_dkma"
+        app:showAsAction="never" />
 </menu>

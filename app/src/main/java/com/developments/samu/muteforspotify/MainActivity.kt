@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.developments.samu.muteforspotify.service.LoggerService
+import com.developments.samu.muteforspotify.utilities.AppUtil
 import com.developments.samu.muteforspotify.utilities.Spotify
 import com.developments.samu.muteforspotify.utilities.isPackageInstalled
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -119,10 +120,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val item = menu.findItem(R.id.enable_skip)
-        item.isChecked = prefs.getBoolean(LoggerService.ENABLE_SKIP_KEY, LoggerService.ENABLE_SKIP_DEFAULT)
+        with(menu) {
+            findItem(R.id.menu_skip).apply {
+                isChecked = prefs.getBoolean(LoggerService.ENABLE_SKIP_KEY, LoggerService.ENABLE_SKIP_DEFAULT)
+            }
+            findItem(R.id.menu_dkma).apply {
+                setOnMenuItemClickListener {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppUtil.DKMA_URL)))
+                    true
+                }
+            }
+        }
         return true
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -136,7 +147,7 @@ class MainActivity : AppCompatActivity() {
                 true
             }
 
-            R.id.enable_skip -> {
+            R.id.menu_skip -> {
                 item.isChecked = !item.isChecked  // pressing checkbox toggles it
                 prefs.edit(true) { putBoolean(LoggerService.ENABLE_SKIP_KEY, item.isChecked) }
                 true
