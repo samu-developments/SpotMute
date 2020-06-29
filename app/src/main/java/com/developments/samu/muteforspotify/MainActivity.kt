@@ -1,11 +1,14 @@
 package com.developments.samu.muteforspotify
 
+import android.app.ActivityManager
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -153,7 +156,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     // subject to this: https://issuetracker.google.com/issues/113122354
     private fun toggleLoggerService(on: Boolean) {
         if (on) {
-            this.startService(loggerServiceIntentForeground)
+            startServiceSafe()  // try to start service in a safe way
             tv_status.text = getString(R.string.status_enabled)
             card_view_status.setCardBackgroundColor(
                 ContextCompat.getColor(
@@ -171,6 +174,22 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
                 )
             )
 
+        }
+    }
+
+    // workaround https://issuetracker.google.com/issues/11312235421 https://stackoverflow.com/a/55376015
+    fun startServiceSafe() {
+        val runningAppProcesses: List<ActivityManager.RunningAppProcessInfo> =
+            (applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).getRunningAppProcesses()
+        val importance = runningAppProcesses[0].importance
+        // higher importance has lower number (?)
+        if (importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) this.startService(loggerServiceIntentForeground)
+        else {
+            try {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    this.startService(loggerServiceIntentForeground)
+                }, 500)
+            } catch (_: IllegalStateException) {}
         }
     }
 
