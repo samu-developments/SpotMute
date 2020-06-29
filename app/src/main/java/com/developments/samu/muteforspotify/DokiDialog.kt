@@ -19,7 +19,7 @@ class DokiDialog : DialogFragment() {
         }
         return MaterialAlertDialogBuilder(requireContext()).apply {
             setView(dokiCustomView)
-            setPositiveButton(R.string.doki_close) { dialog, _ ->
+            setPositiveButton(R.string.doki_close) { _, _ ->
                 dismiss()
             }
         }.create()

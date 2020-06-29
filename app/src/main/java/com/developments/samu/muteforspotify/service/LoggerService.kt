@@ -209,12 +209,12 @@ class LoggerService : Service() {
 
         when {
             song.playing -> handleNewSongPlaying(song)  // ned to set new timer, and after an ad unmute device
-            else -> handleSongNotPlaying(song)  // need to remove timer
+            else -> handleSongNotPlaying()  // need to remove timer
         }
     }
 
     // remove all timers.
-    private fun handleSongNotPlaying(song: Song) {
+    private fun handleSongNotPlaying() {
         Log.d(TAG, "handleSongNotPlaying:not playing")
         handler.removeCallbacksAndMessages(null)
     }

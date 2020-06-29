@@ -44,10 +44,10 @@ class Spotify {
             with (intent) {
                 try {  // Do not trust Spotify. Ever.
                     val song = Song(
-                            getStringExtra("id"),
-                            getStringExtra("artist"),
-                            getStringExtra("album"),
-                            getStringExtra("track"),
+                            getStringExtra("id") ?: "",
+                            getStringExtra("artist") ?: "",
+                            getStringExtra("album") ?: "",
+                            getStringExtra("track") ?: "",
                             getIntExtra("length", -1),
                             getIntExtra("playbackPosition", -1),
                             intent.getBooleanExtra("playing", false),
