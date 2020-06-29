@@ -124,8 +124,12 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.menu_delay -> {
-                showDialog(DelayDialogFragment(), DelayDialogFragment.TAG)
+            R.id.menu_delay_unmute -> {
+                showDialog(DelayUnmuteDialogFragment(), DelayUnmuteDialogFragment.TAG)
+                true
+            }
+            R.id.menu_delay_mute -> {
+                showDialog(DelayMuteDialogFragment(), DelayMuteDialogFragment.TAG)
                 true
             }
             R.id.menu_skip -> {
@@ -181,7 +185,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     }
 }
 
-class DelayDialogFragment : DialogFragment() {
+class DelayUnmuteDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             val inflatedView = layoutInflater.inflate(R.layout.dialog_delay, null)
@@ -191,23 +195,53 @@ class DelayDialogFragment : DialogFragment() {
             }
 
             return MaterialAlertDialogBuilder(it).apply {
-                setTitle(getString(R.string.dialog_delay_title))
-                setMessage(getString(R.string.dialog_delay_message))
+                setTitle(getString(R.string.dialog_delay_unmute_title))
+                setMessage(getString(R.string.dialog_delay_unmute_message))
                 setView(inflatedView)
-                setPositiveButton(getString(R.string.dialog_delay_positive)) { _, _ ->
+                setPositiveButton(getString(R.string.dialog_delay_unmute_positive)) { _, _ ->
                     edDelay.text.toString().toLongOrNull()?.let {
                         prefs.edit(true) { putLong(LoggerService.UNMUTE_DELAY_BUFFER_KEY, it) }
                     }
                 }
-                setNegativeButton(getString(R.string.dialog_delay_negative)) { dialog, _ ->
-                    dialog.dismiss()
+                setNegativeButton(getString(R.string.dialog_delay_unmute_negative)) { _, _ ->
+                    dismiss()
                 }
             }.create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
     companion object {
-        const val TAG = "installed_tag"
+        const val TAG = "delay_unmute_tag"
+    }
+}
+
+class DelayMuteDialogFragment : DialogFragment() {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            val inflatedView = layoutInflater.inflate(R.layout.dialog_delay, null)
+            val prefs = PreferenceManager.getDefaultSharedPreferences(it)
+            val edDelay = inflatedView.findViewById<TextInputEditText>(R.id.edit_text_delay).apply {
+                hint = prefs.getLong(LoggerService.MUTE_DELAY_BUFFER_KEY, LoggerService.MUTE_DELAY_BUFFER_DEFAULT).toString()
+            }
+
+            return MaterialAlertDialogBuilder(it).apply {
+                setTitle(getString(R.string.dialog_delay_mute_title))
+                setMessage(getString(R.string.dialog_delay_mute_message))
+                setView(inflatedView)
+                setPositiveButton(getString(R.string.dialog_delay_mute_positive)) { _, _ ->
+                    edDelay.text.toString().toLongOrNull()?.let {
+                        prefs.edit(true) { putLong(LoggerService.MUTE_DELAY_BUFFER_KEY, it) }
+                    }
+                }
+                setNegativeButton(getString(R.string.dialog_delay_mute_negative)) { _, _ ->
+                    dismiss()
+                }
+            }.create()
+        } ?: throw IllegalStateException("Activity cannot be null")
+    }
+
+    companion object {
+        const val TAG = "delay_mute_tag"
     }
 }
 
@@ -280,7 +314,7 @@ class BroadcastDialogFragment: DialogFragment() {
     }
 
     companion object {
-        const val TAG = "installed_tag"
+        const val TAG = "broadcast_tag"
     }
 }
 

@@ -30,19 +30,28 @@
         Spotify to work. Go to Spotify settings and enable it.</string>
     <string name="dialog_broadcast_positive">Open Spotify</string>
     <string name="dialog_broadcast_negative">I have enabled it!</string>
+
     <string name="dialog_package_title">Spotify not installed</string>
     <string name="dialog_package_message">Spotify is required for this app to work.</string>
     <string name="dialog_package_negative">Exit</string>
+
     <string name="dialog_lite_title">Spotify Lite not supported!</string>
     <string name="dialog_lite_message">Ad detection is unfortunately not possible in Spotify Lite. Please use the full Spotify app.\n\nThis app will exit!</string>
     <string name="dialog_lite_negative">Exit</string>
-    <string name="dialog_delay_title">Unmute Delay</string>
-    <string name="dialog_delay_message">Adjust the unmute delay time, in case you hear the last part of an ad. Default 1500 ms.</string>
-    <string name="dialog_delay_negative">Cancel</string>
-    <string name="dialog_delay_positive">Set buffer</string>
+
+    <string name="dialog_delay_unmute_title">Unmute Delay</string>
+    <string name="dialog_delay_unmute_message">Adjust the unmute delay time, in case you hear the last part of an ad. Increase to fix. Default 1500 ms.</string>
+    <string name="dialog_delay_unmute_negative">Cancel</string>
+    <string name="dialog_delay_unmute_positive">Set delay</string>
+
+    <string name="dialog_delay_mute_title">Mute Delay</string>
+    <string name="dialog_delay_mute_message">Adjust the mute delay time, in case you hear the beginning of an ad. Decrease to fix. Default 1000 ms.</string>
+    <string name="dialog_delay_mute_negative">Cancel</string>
+    <string name="dialog_delay_mute_positive">Set delay</string>
 
     <!-- Menu -->
-    <string name="menu_mute_delay">Unmute delay</string>
+    <string name="menu_unmute_delay">Unmute delay</string>
+    <string name="menu_mute_delay">Mute delay</string>
     <string name="menu_enable_skip">Skip (tablet only, beta)</string>
     <string name="menu_dkma">dontkillmyapp.com</string>
 

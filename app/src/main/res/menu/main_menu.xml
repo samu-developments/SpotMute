@@ -2,7 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/menu_delay"
+        android:id="@+id/menu_delay_unmute"
+        android:title="@string/menu_unmute_delay"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_delay_mute"
         android:title="@string/menu_mute_delay"
         app:showAsAction="never" />
     <item
