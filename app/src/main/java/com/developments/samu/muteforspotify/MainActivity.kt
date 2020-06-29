@@ -42,6 +42,13 @@ class MainActivity : AppCompatActivity() {
 
         card_view_help.setOnClickListener { DokiDialog.show(this@MainActivity) }
         tv_help_dkma.text = getString(R.string.mute_info_dkma, Build.MANUFACTURER)
+
+        // if user updates Spotify, disable skipping
+        if (!supportsSkip(packageManager)) {
+            PreferenceManager.getDefaultSharedPreferences(this).edit(true) {
+                putBoolean(LoggerService.ENABLE_SKIP_KEY, false)
+            }
+        }
     }
 
     // If Spotify is installed; show a 'enable broadcast' dialog. If not

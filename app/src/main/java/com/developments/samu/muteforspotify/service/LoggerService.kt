@@ -231,7 +231,7 @@ class LoggerService : Service() {
                 // We need to correct for the Spotify broadcast propagation delay to get
                 // a more consistent unmute delay
                 val propagationDelay = System.currentTimeMillis() - song.timeSent  // usually around 10-20 ms, not much..
-                setUnmuteTimer(delay = prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT) - propagationDelay)
+                setUnmuteTimer(delay = prefs.getLong(UNMUTE_DELAY_BUFFER_KEY, UNMUTE_DELAY_BUFFER_DEFAULT) - propagationDelay)
             }
         }
         // start new mute timer
@@ -301,7 +301,7 @@ class LoggerService : Service() {
     private fun skipAd() {
         if (prefs.getBoolean(ENABLE_SKIP_KEY, ENABLE_SKIP_DEFAULT)) {
             next()
-            handler.postDelayed({ skipAd() }, 500) // Skip multiple ads. TODO: Lowered?
+            handler.postDelayed({ skipAd() }, 100)
         }
     }
 
@@ -346,8 +346,10 @@ class LoggerService : Service() {
         const val ACTION_MUTE = "MUTE"
         const val DEFAULT_CHANNEL = "MUTE_DEFAULT_CHANNEL"
         const val NOTIFICATION_ID = 3246
-        const val MUTE_DELAY_BUFFER_DEFAULT = 1500L
-        const val MUTE_DELAY_BUFFER_KEY = "delay"
+        const val UNMUTE_DELAY_BUFFER_DEFAULT = 1500L
+        const val UNMUTE_DELAY_BUFFER_KEY = "delay"
+        const val MUTE_DELAY_BUFFER_DEFAULT = 1000L
+        const val MUTE_DELAY_BUFFER_KEY = "mute_delay"
         const val ENABLE_SKIP_DEFAULT = false
         const val ENABLE_SKIP_KEY = "skip"
 
