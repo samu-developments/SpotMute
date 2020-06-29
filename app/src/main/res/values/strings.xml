@@ -45,7 +45,7 @@
     <string name="dialog_delay_unmute_positive">Set delay</string>
 
     <string name="dialog_delay_mute_title">Mute Delay</string>
-    <string name="dialog_delay_mute_message">Adjust the mute delay time, in case you hear the beginning of an ad. Decrease to fix. Default 1000 ms.</string>
+    <string name="dialog_delay_mute_message">Adjust the mute delay time. Default 0 ms.</string>
     <string name="dialog_delay_mute_negative">Cancel</string>
     <string name="dialog_delay_mute_positive">Set delay</string>
 

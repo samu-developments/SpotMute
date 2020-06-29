@@ -265,7 +265,10 @@ class LoggerService : Service() {
                 logAdMuted()
                 setNotificationStatus(lastSong, muted = true)
             }, 1000)
-        }, delay)
+            // TODO: this needs to be tested. What is the difference between muted time and new song logged time?
+            // Is the problem muting too early (song cutoff) or muting too late (ad heard) ?
+            // -> what should the default value be?
+        }, delay + prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT))
     }
 
     @Synchronized
@@ -349,7 +352,7 @@ class LoggerService : Service() {
         const val NOTIFICATION_ID = 3246
         const val UNMUTE_DELAY_BUFFER_DEFAULT = 1500L
         const val UNMUTE_DELAY_BUFFER_KEY = "delay"
-        const val MUTE_DELAY_BUFFER_DEFAULT = 1000L
+        const val MUTE_DELAY_BUFFER_DEFAULT = 0L
         const val MUTE_DELAY_BUFFER_KEY = "mute_delay"
         const val ENABLE_SKIP_DEFAULT = false
         const val ENABLE_SKIP_KEY = "skip"
