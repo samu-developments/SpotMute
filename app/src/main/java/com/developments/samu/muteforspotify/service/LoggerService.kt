@@ -157,6 +157,7 @@ class LoggerService : Service() {
         )  // start backgroundReceiver for picking up Spotify intents
         createBaseNotification(muted = false).apply {
             setContentTitle(getString(R.string.notif_error_detecting_ads))  // not detected any songs yet, show warning
+            setContentText(getString(R.string.notif_error_broadcast))
         }.also {
             startForeground(NOTIFICATION_ID, it.build())
         }
