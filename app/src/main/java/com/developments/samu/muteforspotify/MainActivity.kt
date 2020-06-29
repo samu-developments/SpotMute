@@ -119,7 +119,8 @@ class MainActivity : AppCompatActivity() {
         else toggleHelper()
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
         with(menu) {
             findItem(R.id.menu_skip).apply {
                 isChecked = prefs.getBoolean(LoggerService.ENABLE_SKIP_KEY, LoggerService.ENABLE_SKIP_DEFAULT)
@@ -131,12 +132,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        return true
-    }
-
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
         return true
     }
 
