@@ -41,7 +41,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="@string/status_enabled"
+                android:text="@string/status_disabled"
                 android:textAlignment="center"
                 android:textSize="30sp"
                 app:layout_constraintEnd_toEndOf="parent"
