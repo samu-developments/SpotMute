@@ -122,15 +122,15 @@ class LoggerService : Service() {
     // notification action 'mute'
     private fun actionMute() {
         handler.removeCallbacksAndMessages(null)
-        // mute without delay (also updates notification)
         mute()
+        setNotificationStatus(lastSong, true)
     }
 
     // notification action 'unmute'. Sets a new mute timer if song is not finished
     private fun actionUnmute() {
         handler.removeCallbacksAndMessages(null)
-        // unmute without delay (also updates notification)
-        setUnmuteTimer(delay = 0L)
+        unmute()
+        setNotificationStatus(lastSong, false)
 
         // check if song is not finished playing, in that case set a new mute timer
         val endTime = lastSong.timeSent + (lastSong.length - lastSong.playbackPosition)
