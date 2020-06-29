@@ -103,20 +103,20 @@ class LoggerService : Service() {
     }
 
     // dynamically create the notification action mute/unmute, and set the text based on if it is muted or not
-    private fun createActionMute() =
+    private fun createActionMute(muted: Boolean) =
         NotificationCompat.Action.Builder(
-            if (isMuted) R.drawable.ic_volume_unmute else R.drawable.ic_volume_mute,
-            if (isMuted) getString(R.string.notif_action_title_unmute) else getString(R.string.notif_action_title_mute),
+            if (muted) R.drawable.ic_volume_unmute else R.drawable.ic_volume_mute,
+            if (muted) getString(R.string.notif_action_title_unmute) else getString(R.string.notif_action_title_mute),
             notifPendingIntentMute
         )
             .build()
 
     // since the mute/umute action is dynamically created, the whole notification also needs to be dynamically created
-    private fun createBaseNotification() = NotificationCompat.Builder(this, DEFAULT_CHANNEL).apply {
+    private fun createBaseNotification(muted: Boolean) = NotificationCompat.Builder(this, DEFAULT_CHANNEL).apply {
         setSmallIcon(R.drawable.ic_tile_volume_off)
         setContentIntent(notifPendingIntentClick)
         addAction(notifActionStop)
-        addAction(createActionMute())  // dynamically add mute/unmute action
+        addAction(createActionMute(muted))  // dynamically add mute/unmute action
     }
 
     // notification action 'mute'
@@ -155,7 +155,7 @@ class LoggerService : Service() {
             spotifyReceiver,
             Spotify.INTENT_FILTER
         )  // start backgroundReceiver for picking up Spotify intents
-        createBaseNotification().apply {
+        createBaseNotification(muted = false).apply {
             setContentTitle(getString(R.string.notif_error_detecting_ads))  // not detected any songs yet, show warning
         }.also {
             startForeground(NOTIFICATION_ID, it.build())
@@ -205,22 +205,23 @@ class LoggerService : Service() {
             !isSongReset(song, lastSong)) return  // song is not reset -> then return early
 
         lastSong = song  // keep track of the last logged song
-        setNotificationStatus(song)  // update detected song
 
         when {
             song.playing -> handleNewSongPlaying(song)  // ned to set new timer, and after an ad unmute device
-            else -> handleSongNotPlaying()  // need to remove timer
+            else -> handleSongNotPlaying(song)  // need to remove timer
         }
     }
 
     // remove all timers.
-    private fun handleSongNotPlaying() {
+    private fun handleSongNotPlaying(song: Song) {
         Log.d(TAG, "handleSongNotPlaying:not playing")
         handler.removeCallbacksAndMessages(null)
+        setNotificationStatus(song, isMuted)  // could be muted (user paused an ad)
     }
 
     private fun handleNewSongPlaying(song: Song) {
         handler.removeCallbacksAndMessages(null)
+        setNotificationStatus(song, false)
         if (isMuted) {  // is muted -> unmute
             Log.d(TAG, "handleNewSongPlaying:isMuted, (so unmute either with delay or immediately)")
             // If skip is on, then we know the ad was skipped and we can unmute directly
@@ -256,22 +257,21 @@ class LoggerService : Service() {
         // remove any pending mute requests
         handler.postDelayed({
             Log.d(TAG, "setMuteTimer:Now muting")
-            mute(false)
+            mute()
             handler.postDelayed({
                 Log.d(TAG, "setMuteTimer:Now logging delayed muting counter")
                 skipAd()
                 logAdMuted()
-                setNotificationStatus(lastSong)
+                setNotificationStatus(lastSong, muted = true)
             }, 1000)
         }, delay)
     }
 
     @Synchronized
-    private fun mute(updateNotification: Boolean = true) {
+    private fun mute() {
         Log.d(TAG, "mute:Muted")
         isMuted = true
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
-        if (updateNotification) setNotificationStatus(lastSong)  // show that currently muting ad
     }
 
     @Synchronized
@@ -279,7 +279,6 @@ class LoggerService : Service() {
         Log.d(TAG, "unmute:Unmuted")
         isMuted = false
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0)
-        setNotificationStatus(lastSong)
     }
 
     private fun logAdMuted() {
@@ -307,13 +306,13 @@ class LoggerService : Service() {
     }
 
     // Show notification status based on 'isMuted'. If song is passed, show it as the last detected song
-    private fun setNotificationStatus(song: Song?) {
-        createBaseNotification().apply {
-            setContentTitle(if (isMuted) getString(R.string.notif_content_muting) else getString(
+    private fun setNotificationStatus(song: Song, muted: Boolean) {
+        createBaseNotification(muted).apply {
+            setContentTitle(if (muted) getString(R.string.notif_content_muting) else getString(
                     R.string.notif_content_listening,
                     adsMutedCounter
                 ))
-            song?.let { setContentText("${getString(R.string.notif_last_detected_song)} ${it.track}") }
+            setContentText("${getString(R.string.notif_last_detected_song)} ${song.track}")
         }.also { NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, it.build()) }
     }
 
