@@ -199,10 +199,11 @@ class LoggerService : Service() {
     private fun log(song: Song) {
         Log.d(TAG, "log: $song")
 
-        // if same song logged twice; return early if same state or _not_ pressed 'previous'
-        if (song.id == lastSong.id &&
-            song.playing == lastSong.playing && // both playing or both paused
-            !isSongReset(song, lastSong)) return
+        // Logic to find out if Spotify is spamming broadcasts
+        if (song.id == lastSong.id &&  // If same song logged twice,
+            song.playing == lastSong.playing && // both playing or both paused,
+            !isSongReset(song, lastSong)) return  // song is not reset -> then return early
+
         lastSong = song  // keep track of the last logged song
         setNotificationStatus(song)  // update detected song
 
@@ -222,10 +223,8 @@ class LoggerService : Service() {
         handler.removeCallbacksAndMessages(null)
         if (isMuted) {  // is muted -> unmute
             Log.d(TAG, "handleNewSongPlaying:isMuted, (so unmute either with delay or immediately)")
-            // turn on volume. Use delay if we are not skipping ads
+            // If skip is on, then we know the ad was skipped and we can unmute directly
             if (prefs.getBoolean(ENABLE_SKIP_KEY, ENABLE_SKIP_DEFAULT)) {
-                // TODO: This should be subject to mute delay? Need to test with tablet
-                // even if skipping multiple ads, a new song will still be logged before the last ad is finished
                 setUnmuteTimer(delay = 0L)
             } else {
                 // We need to correct for the Spotify broadcast propagation delay to get
@@ -239,7 +238,6 @@ class LoggerService : Service() {
 
         val remaining = (song.length - song.playbackPosition).toLong()
         setMuteTimer(remaining)
-
     }
 
     // wrapper for unmute, removes callbacks
@@ -261,7 +259,6 @@ class LoggerService : Service() {
             mute(false)
             handler.postDelayed({
                 Log.d(TAG, "setMuteTimer:Now logging delayed muting counter")
-
                 skipAd()
                 logAdMuted()
                 setNotificationStatus(lastSong)
@@ -274,7 +271,7 @@ class LoggerService : Service() {
         Log.d(TAG, "mute:Muted")
         isMuted = true
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
-        if (updateNotification) setNotificationStatus(lastSong)  // show that currently muting ad, recently detected song
+        if (updateNotification) setNotificationStatus(lastSong)  // show that currently muting ad
     }
 
     @Synchronized
@@ -282,7 +279,7 @@ class LoggerService : Service() {
         Log.d(TAG, "unmute:Unmuted")
         isMuted = false
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0)
-        setNotificationStatus(lastSong)  // show that currently muting ad, recently detected song
+        setNotificationStatus(lastSong)
     }
 
     private fun logAdMuted() {
@@ -294,11 +291,12 @@ class LoggerService : Service() {
 
     private fun next() {
         Log.d(TAG, "NEXT CALLED -----------")
-        var event = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_NEXT)
-        audioManager.dispatchMediaKeyEvent(event)
-
-        event = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_NEXT)
-        audioManager.dispatchMediaKeyEvent(event)
+        val actionDown = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_NEXT)
+        val actionUp = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_NEXT)
+        with (audioManager) {
+            dispatchMediaKeyEvent(actionDown)
+            dispatchMediaKeyEvent(actionUp)
+        }
     }
 
     private fun skipAd() {
@@ -315,7 +313,7 @@ class LoggerService : Service() {
                     R.string.notif_content_listening,
                     adsMutedCounter
                 ))
-            song?.let { setContentText("${getString(R.string.notif_last_detected_song)} ${song.track}") }
+            song?.let { setContentText("${getString(R.string.notif_last_detected_song)} ${it.track}") }
         }.also { NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, it.build()) }
     }
 
