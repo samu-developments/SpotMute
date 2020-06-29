@@ -258,22 +258,23 @@ class LoggerService : Service() {
         // remove any pending mute requests
         handler.postDelayed({
             Log.d(TAG, "setMuteTimer:Now muting")
-            mute()
+            mute(false)
             handler.postDelayed({
                 Log.d(TAG, "setMuteTimer:Now logging delayed muting counter")
 
                 skipAd()
                 logAdMuted()
+                setNotificationStatus(lastSong)
             }, 1000)
         }, delay)
     }
 
     @Synchronized
-    private fun mute() {
+    private fun mute(updateNotification: Boolean = true) {
         Log.d(TAG, "mute:Muted")
         isMuted = true
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
-        setNotificationStatus(lastSong)  // show that currently muting ad, recently detected song
+        if (updateNotification) setNotificationStatus(lastSong)  // show that currently muting ad, recently detected song
     }
 
     @Synchronized
