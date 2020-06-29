@@ -9,6 +9,7 @@
         android:id="@+id/menu_skip"
         android:checkable="true"
         android:title="@string/menu_enable_skip"
+        android:visible="false"
         app:showAsAction="never" />
     <item
         android:id="@+id/menu_dkma"

@@ -15,6 +15,7 @@ import com.developments.samu.muteforspotify.service.LoggerService
 import com.developments.samu.muteforspotify.utilities.AppUtil
 import com.developments.samu.muteforspotify.utilities.Spotify
 import com.developments.samu.muteforspotify.utilities.isPackageInstalled
+import com.developments.samu.muteforspotify.utilities.supportsSkip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.activity_main.*
@@ -131,6 +132,11 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
             }
+            if (supportsSkip(packageManager)) {
+                findItem(R.id.menu_skip).apply {
+                    isVisible = true
+                }
+            }
         }
         return true
     }
@@ -155,7 +161,7 @@ class MainActivity : AppCompatActivity() {
 
         val inflatedView = layoutInflater.inflate(R.layout.dialog_delay, null)
         val edDelay = inflatedView.findViewById<TextInputEditText>(R.id.edit_text_delay).apply {
-            hint = prefs.getLong(LoggerService.MUTE_DELAY_BUFFER_KEY, LoggerService.MUTE_DELAY_BUFFER_DEFAULT).toString()
+            hint = prefs.getLong(LoggerService.UNMUTE_DELAY_BUFFER_KEY, LoggerService.UNMUTE_DELAY_BUFFER_DEFAULT).toString()
         }
 
         dialog = MaterialAlertDialogBuilder(this).apply {
@@ -164,7 +170,7 @@ class MainActivity : AppCompatActivity() {
             setView(inflatedView)
             setPositiveButton(getString(R.string.dialog_delay_positive)) { _, _ ->
                 edDelay.text.toString().toLongOrNull()?.let {
-                    prefs.edit(true) { putLong(LoggerService.MUTE_DELAY_BUFFER_KEY, it) }
+                    prefs.edit(true) { putLong(LoggerService.UNMUTE_DELAY_BUFFER_KEY, it) }
                 }
             }
             setNegativeButton(getString(R.string.dialog_delay_negative)) { dialog, _ ->
