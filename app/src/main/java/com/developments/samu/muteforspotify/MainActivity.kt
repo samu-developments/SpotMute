@@ -1,15 +1,17 @@
 package com.developments.samu.muteforspotify
 
+import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.fragment.app.DialogFragment
 import androidx.preference.PreferenceManager
 import com.developments.samu.muteforspotify.service.LoggerService
 import com.developments.samu.muteforspotify.utilities.AppUtil
@@ -24,10 +26,16 @@ import kotlinx.android.synthetic.main.activity_main.*
 private const val TAG = "MainActivity"
 
 
-class MainActivity : AppCompatActivity() {
-    private val loggerServiceIntentForeground by lazy { Intent(LoggerService.ACTION_START_FOREGROUND, Uri.EMPTY, this, LoggerService::class.java) }
+class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialogListener {
+    private val loggerServiceIntentForeground by lazy {
+        Intent(
+            LoggerService.ACTION_START_FOREGROUND,
+            Uri.EMPTY,
+            this,
+            LoggerService::class.java
+        )
+    }
     private val prefs by lazy { PreferenceManager.getDefaultSharedPreferences(this) }
-    private var dialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,87 +59,53 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // If Spotify is installed; show a 'enable broadcast' dialog. If not
+    override fun onBroadcastDialogPositiveClick(dialog: DialogFragment) {
+        setToggleEnabled()
+        prefs.edit(true) {
+            putBoolean(MainActivity.IS_FIRST_LAUNCH_KEY, false)
+        }
+    }
+
+    override fun onBroadcastDialogNegativeClick(dialog: DialogFragment) {
+        // Intent.ACTION_APPLICATION_PREFERENCES added in api 24. On API < 24 it will just open Spotify.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) startActivity(Spotify.INTENT_SPOTIFY_SETTINGS)
+        else {
+            packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
+                startActivity(it)
+            }
+        }
+    }
+
     private fun showCompatibilityDialog() = when {
-        isPackageInstalled(Spotify.PACKAGE_NAME, this.packageManager) -> showEnableBroadcastDialog()
-        isPackageInstalled(Spotify.PACKAGE_NAME_LITE, this.packageManager) -> showLiteNotSupportedDialog()
-        else -> showSpotifyNotInstalledDialog()
+        isPackageInstalled(packageManager, Spotify.PACKAGE_NAME) ->
+            showDialog(BroadcastDialogFragment(), BroadcastDialogFragment.TAG)
+        isPackageInstalled(packageManager, Spotify.PACKAGE_NAME_LITE) ->
+            showDialog(SpotifyNotInstalledDialogFragment(), SpotifyNotInstalledDialogFragment.TAG)
+        else -> showDialog(SpotifyLiteDialogFragment(), SpotifyLiteDialogFragment.TAG)
     }
 
-    private fun showEnableBroadcastDialog() {
-        dialog = MaterialAlertDialogBuilder(this).apply {
-            setTitle(getString(R.string.dialog_broadcast_title))
-            setMessage(getString(R.string.dialog_broadcast_message))
-            setPositiveButton(getString(R.string.dialog_broadcast_positive)) { _, _ ->
-                // Intent.ACTION_APPLICATION_PREFERENCES added in api 24. On API < 24 it will just open Spotify.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) startActivity(Spotify.INTENT_SPOTIFY_SETTINGS)
-                else {
-                    packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
-                        startActivity(it)
-                    }
-                }
-            }
-            setNegativeButton(getString(R.string.dialog_broadcast_negative)) { dialog, _ ->
-                dialog.dismiss()
-                toggleHelper()
-                prefs.edit(true) { putBoolean(IS_FIRST_LAUNCH_KEY, false) }
-            }
-            setCancelable(false)  // force user to take an action
-        }.create().also {
-            it.show()
-        }
-    }
-
-    private fun showLiteNotSupportedDialog() {
-        dialog = MaterialAlertDialogBuilder(this).apply {
-            setTitle(getString(R.string.dialog_lite_title))
-            setMessage(getString(R.string.dialog_lite_message))
-            setNegativeButton(getString(R.string.dialog_lite_negative)) { _, _ ->
-                onForceExit()
-            }
-            setCancelable(false)  // force user to take an action
-        }.create().also {
-            it.show()
-        }
-    }
-
-    private fun showSpotifyNotInstalledDialog() {
-        dialog = MaterialAlertDialogBuilder(this).apply {
-            setTitle(getString(R.string.dialog_package_title))
-            setMessage(getString(R.string.dialog_package_message))
-            setNegativeButton(getString(R.string.dialog_package_negative)) { _, _ ->
-                onForceExit()
-            }
-            setCancelable(false)  // force user to take an action
-        }.create().also {
-            it.show()
-        }
-    }
-
-    private fun onForceExit() {
-        this.finish()
-    }
-
-    override fun onPause() {
-        dialog?.dismiss()
-        super.onPause()
+    private fun showDialog(dialog: DialogFragment, tag: String) {
+        if (supportFragmentManager.findFragmentByTag(tag) != null) return
+        dialog.show(supportFragmentManager, tag)
     }
 
     override fun onResume() {
         super.onResume()
 
         val adsMuted = prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER, 0)
-
         tv_ad_counter.text = getString(R.string.mute_info_ad_counter, adsMuted)
         if (prefs.getBoolean(IS_FIRST_LAUNCH_KEY, true)) showCompatibilityDialog()
-        else toggleHelper()
+        else setToggleEnabled()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         with(menu) {
             findItem(R.id.menu_skip).apply {
-                isChecked = prefs.getBoolean(LoggerService.ENABLE_SKIP_KEY, LoggerService.ENABLE_SKIP_DEFAULT)
+                isChecked = prefs.getBoolean(
+                    LoggerService.ENABLE_SKIP_KEY,
+                    LoggerService.ENABLE_SKIP_DEFAULT
+                )
             }
             findItem(R.id.menu_dkma).apply {
                 setOnMenuItemClickListener {
@@ -151,10 +125,9 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_delay -> {
-                showDelayDialog()
+                showDialog(DelayDialogFragment(), DelayDialogFragment.TAG)
                 true
             }
-
             R.id.menu_skip -> {
                 item.isChecked = !item.isChecked  // pressing checkbox toggles it
                 prefs.edit(true) { putBoolean(LoggerService.ENABLE_SKIP_KEY, item.isChecked) }
@@ -164,37 +137,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showDelayDialog() {
-
-        val inflatedView = layoutInflater.inflate(R.layout.dialog_delay, null)
-        val edDelay = inflatedView.findViewById<TextInputEditText>(R.id.edit_text_delay).apply {
-            hint = prefs.getLong(LoggerService.UNMUTE_DELAY_BUFFER_KEY, LoggerService.UNMUTE_DELAY_BUFFER_DEFAULT).toString()
-        }
-
-        dialog = MaterialAlertDialogBuilder(this).apply {
-            setTitle(getString(R.string.dialog_delay_title))
-            setMessage(getString(R.string.dialog_delay_message))
-            setView(inflatedView)
-            setPositiveButton(getString(R.string.dialog_delay_positive)) { _, _ ->
-                edDelay.text.toString().toLongOrNull()?.let {
-                    prefs.edit(true) { putLong(LoggerService.UNMUTE_DELAY_BUFFER_KEY, it) }
-                }
-            }
-            setNegativeButton(getString(R.string.dialog_delay_negative)) { dialog, _ ->
-                dialog.dismiss()
-            }
-        }.create().also {
-            it.show()
-        }
-
-    }
-
-    private fun toggleHelper() {
+    private fun setToggleEnabled() {
         // should start enabled
         if (!switch_mute.isChecked) {
             switch_mute.isChecked = true  // service will start by toggle callback
         } else if (!LoggerService.isServiceRunning()) {
-            toggleLoggerService(on=true)  // service turned off from outside activity, but toggle is true: just enable service
+            toggleLoggerService(on = true)  // service turned off from outside activity, but toggle is true: just enable service
         }
     }
 
@@ -203,11 +151,21 @@ class MainActivity : AppCompatActivity() {
         if (on) {
             this.startService(loggerServiceIntentForeground)
             tv_status.text = getString(R.string.status_enabled)
-            card_view_status.setCardBackgroundColor(ContextCompat.getColor(this, R.color.colorOk))
+            card_view_status.setCardBackgroundColor(
+                ContextCompat.getColor(
+                    this,
+                    R.color.colorOk
+                )
+            )
         } else {
             this.stopService(loggerServiceIntentForeground)
             tv_status.text = getString(R.string.status_disabled)
-            card_view_status.setCardBackgroundColor(ContextCompat.getColor(this, R.color.colorWarning))
+            card_view_status.setCardBackgroundColor(
+                ContextCompat.getColor(
+                    this,
+                    R.color.colorWarning
+                )
+            )
 
         }
     }
@@ -222,3 +180,111 @@ class MainActivity : AppCompatActivity() {
 
     }
 }
+
+class DelayDialogFragment : DialogFragment() {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            val inflatedView = layoutInflater.inflate(R.layout.dialog_delay, null)
+            val prefs = PreferenceManager.getDefaultSharedPreferences(it)
+            val edDelay = inflatedView.findViewById<TextInputEditText>(R.id.edit_text_delay).apply {
+                hint = prefs.getLong(LoggerService.UNMUTE_DELAY_BUFFER_KEY, LoggerService.UNMUTE_DELAY_BUFFER_DEFAULT).toString()
+            }
+
+            return MaterialAlertDialogBuilder(it).apply {
+                setTitle(getString(R.string.dialog_delay_title))
+                setMessage(getString(R.string.dialog_delay_message))
+                setView(inflatedView)
+                setPositiveButton(getString(R.string.dialog_delay_positive)) { _, _ ->
+                    edDelay.text.toString().toLongOrNull()?.let {
+                        prefs.edit(true) { putLong(LoggerService.UNMUTE_DELAY_BUFFER_KEY, it) }
+                    }
+                }
+                setNegativeButton(getString(R.string.dialog_delay_negative)) { dialog, _ ->
+                    dialog.dismiss()
+                }
+            }.create()
+        } ?: throw IllegalStateException("Activity cannot be null")
+    }
+
+    companion object {
+        const val TAG = "installed_tag"
+    }
+}
+
+class SpotifyLiteDialogFragment: DialogFragment() {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            return MaterialAlertDialogBuilder(it).apply {
+                setTitle(getString(R.string.dialog_lite_title))
+                setMessage(getString(R.string.dialog_lite_message))
+                setNegativeButton(getString(R.string.dialog_lite_negative)) { _, _ ->
+                    it.finish()
+                }
+                setCancelable(false)  // force user to take an action
+            }.create()
+        } ?: throw IllegalStateException("Activity cannot be null")
+    }
+
+    companion object {
+        const val TAG = "lite_tag"
+    }
+}
+
+class SpotifyNotInstalledDialogFragment: DialogFragment() {
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            return MaterialAlertDialogBuilder(it).apply {
+                setTitle(getString(R.string.dialog_package_title))
+                setMessage(getString(R.string.dialog_package_message))
+                setNegativeButton(getString(R.string.dialog_package_negative)) { _, _ ->
+                    it.finish()
+                }
+                setCancelable(false)  // force user to take an action
+            }.create()
+        } ?: throw IllegalStateException("Activity cannot be null")
+    }
+
+    companion object {
+        const val TAG = "installed_tag"
+    }
+}
+
+class BroadcastDialogFragment: DialogFragment() {
+
+    internal lateinit var listener: BroadcastDialogListener
+
+    interface BroadcastDialogListener {
+        fun onBroadcastDialogPositiveClick(dialog: DialogFragment)
+        fun onBroadcastDialogNegativeClick(dialog: DialogFragment)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        listener = context as BroadcastDialogListener  // register listener
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return activity?.let {
+            return MaterialAlertDialogBuilder(it).apply {
+                setTitle(getString(R.string.dialog_broadcast_title))
+                setMessage(getString(R.string.dialog_broadcast_message))
+                setPositiveButton(getString(R.string.dialog_broadcast_negative)) { _, _ ->
+                    listener.onBroadcastDialogPositiveClick(this@BroadcastDialogFragment)
+                }
+                setNegativeButton(getString(R.string.dialog_broadcast_positive)) { dialog, _ ->
+                    listener.onBroadcastDialogNegativeClick(this@BroadcastDialogFragment)
+                }
+                setCancelable(false)  // force user to take an action
+            }.create()
+        } ?: throw IllegalStateException("Activity cannot be null")
+    }
+
+    companion object {
+        const val TAG = "installed_tag"
+    }
+}
+
+
+
+
+

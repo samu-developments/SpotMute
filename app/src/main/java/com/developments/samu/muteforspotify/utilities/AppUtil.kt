@@ -9,7 +9,7 @@ private const val TAG = "AppUtil"
   Welcome to the class with the weird stuff.
  */
 
-fun isPackageInstalled(packageName: String, packageManager: PackageManager): Boolean {
+fun isPackageInstalled(packageManager: PackageManager, packageName: String): Boolean {
     return try {
         packageManager.getPackageInfo(packageName, 0) != null
     } catch (e: PackageManager.NameNotFoundException) {
