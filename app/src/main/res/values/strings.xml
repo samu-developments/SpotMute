@@ -3,7 +3,7 @@
     <string name="tile_mute">Mute ads</string>
 
     <string name="mute_info_background">Allow SpotMute to run in background!</string>
-    <string name="mute_info_dkma">Click to see how-to\nThanks dontkillmyapp.com</string>
+    <string name="mute_info_dkma">Click to see %1s\'s background process rating and prevention steps from dontkillmyapp.com</string>
     <string name="mute_info_skip_startup">Ads playing after you skip a track or ads on Spotify startup cannot be muted.</string>
 
     <string name="ads_muted">Ads muted</string>

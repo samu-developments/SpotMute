@@ -34,8 +34,12 @@ class MainActivity : AppCompatActivity() {
         switch_mute.setOnCheckedChangeListener { _, isChecked ->
             handleSwitched(isChecked)
         }
+        card_view_status.setOnClickListener {
+            switch_mute.toggle()
+        }
 
         card_view_help.setOnClickListener { DokiDialog.show(this@MainActivity) }
+        tv_help_dkma.text = getString(R.string.mute_info_dkma, Build.MANUFACTURER)
     }
 
     // If Spotify is installed; show a 'enable broadcast' dialog. If not
