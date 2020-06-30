@@ -28,6 +28,7 @@ fun supportsSkip(packageManager: PackageManager): Boolean {
 class AppUtil {
     companion object {
         val ONE_SECOND_MS = 1000
+        val THREE_SECOND_MS = 3000
         val DKMA_URL = "https://dontkillmyapp.com/"
     }
 }

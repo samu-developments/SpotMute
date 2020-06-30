@@ -195,7 +195,8 @@ class LoggerService : Service() {
     private fun isSongReset(new: Song, old: Song): Boolean {
         return new.playing &&
                 new.playbackPosition < AppUtil.ONE_SECOND_MS &&  // song just started
-                new.timeSent - old.timeSent > AppUtil.ONE_SECOND_MS  // song logged 1 sec+ after lastSong
+                old.playbackPosition > AppUtil.THREE_SECOND_MS &&  // can only reset a song after 3 sec (Spotify limit)
+                new.playbackPosition < old.playbackPosition  // new song has lower playbackposition
     }
 
     private fun log(song: Song) {
