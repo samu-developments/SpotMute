@@ -10,6 +10,11 @@
         android:title="@string/menu_mute_delay"
         app:showAsAction="never" />
     <item
+        android:id="@+id/menu_launch_spotify"
+        android:checkable="true"
+        android:title="@string/menu_launch_spotify"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/menu_skip"
         android:checkable="true"
         android:title="@string/menu_enable_skip"

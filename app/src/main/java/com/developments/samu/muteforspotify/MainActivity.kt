@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -83,8 +84,8 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         isPackageInstalled(packageManager, Spotify.PACKAGE_NAME) ->
             showDialog(BroadcastDialogFragment(), BroadcastDialogFragment.TAG)
         isPackageInstalled(packageManager, Spotify.PACKAGE_NAME_LITE) ->
-            showDialog(SpotifyNotInstalledDialogFragment(), SpotifyNotInstalledDialogFragment.TAG)
-        else -> showDialog(SpotifyLiteDialogFragment(), SpotifyLiteDialogFragment.TAG)
+            showDialog(SpotifyLiteDialogFragment(), SpotifyLiteDialogFragment.TAG)
+        else -> showDialog(SpotifyNotInstalledDialogFragment(), SpotifyNotInstalledDialogFragment.TAG)
     }
 
     private fun showDialog(dialog: DialogFragment, tag: String) {
@@ -92,13 +93,27 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         dialog.show(supportFragmentManager, tag)
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+    }
+
     override fun onResume() {
         super.onResume()
+        intent.extras?.keySet()?.contains(LoggerService.NOTIFICATION_KEY) ?: let {
+            if (prefs.getBoolean(PREF_KEY_LAUNCH_SPOTIFY_KEY, PREF_KEY_LAUNCH_SPOTIFY_DEFAULT)) {
+                packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
+                    startActivity(it)
+                }
+            }
+        }
+        intent.removeExtra(LoggerService.NOTIFICATION_KEY)
 
         val adsMuted = prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER, 0)
         tv_ad_counter.text = getString(R.string.mute_info_ad_counter, adsMuted)
         if (prefs.getBoolean(IS_FIRST_LAUNCH_KEY, true)) showCompatibilityDialog()
         else setToggleEnabled()
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -115,6 +130,12 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppUtil.DKMA_URL)))
                     true
                 }
+            }
+            findItem(R.id.menu_launch_spotify).apply {
+                isChecked = prefs.getBoolean(
+                    PREF_KEY_LAUNCH_SPOTIFY_KEY,
+                    PREF_KEY_LAUNCH_SPOTIFY_DEFAULT
+                )
             }
             if (supportsSkip(packageManager)) {
                 findItem(R.id.menu_skip).apply {
@@ -133,6 +154,11 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
             }
             R.id.menu_delay_mute -> {
                 showDialog(DelayMuteDialogFragment(), DelayMuteDialogFragment.TAG)
+                true
+            }
+            R.id.menu_launch_spotify -> {
+                item.isChecked = !item.isChecked  // pressing checkbox toggles it
+                prefs.edit(true) { putBoolean(PREF_KEY_LAUNCH_SPOTIFY_KEY, item.isChecked) }
                 true
             }
             R.id.menu_skip -> {
@@ -200,6 +226,8 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     companion object {
         const val IS_FIRST_LAUNCH_KEY = "first_launch"
         const val PREF_KEY_ADS_MUTED_COUNTER = "ads_muted_counter"
+        const val PREF_KEY_LAUNCH_SPOTIFY_KEY = "launch_spotify"
+        const val PREF_KEY_LAUNCH_SPOTIFY_DEFAULT = false
 
     }
 }

@@ -56,6 +56,7 @@ class LoggerService : Service() {
             0,
             Intent(this, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+                putExtra(NOTIFICATION_KEY, NOTIFICATION_ID)
             },
             PendingIntent.FLAG_UPDATE_CURRENT
         )

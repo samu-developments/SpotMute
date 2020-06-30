@@ -57,6 +57,7 @@
 
     <!-- Widget -->
     <string name="widget_content_description">Mute widget</string>
+    <string name="menu_launch_spotify">Auto-launch Spotify</string>
 
 
 </resources>
