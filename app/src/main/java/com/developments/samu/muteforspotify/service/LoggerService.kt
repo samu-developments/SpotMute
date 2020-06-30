@@ -29,10 +29,6 @@ class LoggerService : Service() {
 
     @Volatile
     private var isMuted = false
-        set(value) {
-            Log.d(TAG, "-- Setting isMuted to $value")
-            field = value
-        }
 
     private var adsMutedCounter = 0
 
@@ -184,9 +180,10 @@ class LoggerService : Service() {
                 * Seen 700ms one time, resulting in a total delay between songs of 1500ms.
                 * Possible solution: consider propagation time when calling setUnmuteTimer
         Muting:
-            - Muting too late -> hears ad
+            - Muting too late -> hears ad, Muting too early -> last part of song skipped
                 * worse than muting too early
-                * add a delay: timeLeft minus propagation delay.
+                * add a delay: timeLeft minus propagation delay
+                * add a user configurable delay
 
      9. Users have to whitelist the app otherwise the service is killed and can't do anything.
 
@@ -201,13 +198,12 @@ class LoggerService : Service() {
     }
 
     private fun log(song: Song) {
-        Log.d(TAG, "log: $song")
-
         // Logic to find out if Spotify is spamming broadcasts
         if (song.id == lastSong.id &&  // If same song logged twice,
             song.playing == lastSong.playing && // both playing or both paused,
             !isSongReset(song, lastSong)) return  // song is not reset -> then return early
 
+        Log.d(TAG, "log: $song")
         lastSong = song  // keep track of the last logged song
 
         when {
@@ -218,7 +214,6 @@ class LoggerService : Service() {
 
     // remove all timers.
     private fun handleSongNotPlaying(song: Song) {
-        Log.d(TAG, "handleSongNotPlaying")
         loggerScope.coroutineContext.cancelChildren()
         setNotificationStatus(song, isMuted)  // could be muted (user paused an ad)
     }
@@ -227,23 +222,18 @@ class LoggerService : Service() {
         loggerScope.coroutineContext.cancelChildren()
         setNotificationStatus(song, false)
         if (isMuted) {  // is muted -> unmute
-            Log.d(TAG, "handleNewSongPlaying:isMuted, (so unmute either with delay or immediately)")
             // If skip is on, then we know the ad was skipped and we can unmute directly
             if (prefs.getBoolean(ENABLE_SKIP_KEY, ENABLE_SKIP_DEFAULT)) setUnmuteTimer(wait = 0L)
             else {
-                // Test with subtracting playback position. Probably the delay buffer needs to be changed to another default value
+                // Test with subtracting playback position and propagation delay
                 setUnmuteTimer(wait = prefs.getLong(UNMUTE_DELAY_BUFFER_KEY, UNMUTE_DELAY_BUFFER_DEFAULT) - song.playbackPosition - song.propagation())
             }
         }
-        // start new mute timer
-        Log.d(TAG, "handleNewSongPlaying:set mute timer")
-
         setMuteTimer(song.timeRemaining - song.propagation())
     }
 
-    // wrapper for unmute, removes callbacks
     private fun setUnmuteTimer(wait: Long) {
-        Log.d(TAG, "setUnmuteTimer:wait: ${wait}")
+        Log.d(TAG, "setUnmuteTimer: $wait")
         // Spotify sends an intent of a new playing song before the ad is completed -> wait some hundred ms before unmuting
         loggerScope.launch {
             delay(wait)
@@ -251,20 +241,15 @@ class LoggerService : Service() {
         }
     }
 
-    var mutingTime = 0L
+    var lastSongMuteTime = 0L
     var prop = 0L
-    // set a delayed muting
     private fun setMuteTimer(wait: Long) {
-        // difference between when song was supposed to stop and when a new song was logged
-        val diff = System.currentTimeMillis() - mutingTime
-        // how long it took from Spotify made the intent till it got logged here
-        // if positive, new song was logged after last song was supposed to end (which is generally the case) ->
-        //      muting too early -> phone music volume is muted. Is song still playing? Or does Spotify just use too long to switch songs..?
-        // if negative, new song was logged before last song was supposed to end -> no mute problems
+        val diff = System.currentTimeMillis() - lastSongMuteTime
+
         prop = lastSong.propagation()
-        Log.d(TAG, "setMuteTimer: === diff: ${diff}, (diff - prop): ${diff - prop}, prop: $prop")
+        Log.d(TAG, "setMuteTimer: ${diff} $prop ${diff - prop} (diff | prop | diff-prop)")
         // next muting time
-        mutingTime = System.currentTimeMillis() + wait + prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT)
+        lastSongMuteTime = System.currentTimeMillis() + wait + prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT)
 
         loggerScope.launch {
             delay(wait + prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT))
@@ -277,21 +262,16 @@ class LoggerService : Service() {
             setNotificationStatus(lastSong, muted = true)
             if (prefs.getBoolean(ENABLE_SKIP_KEY, ENABLE_SKIP_DEFAULT)) skipAd()
         }
-        // prop is ~ 20 - 70, more often around 40
-        // diff is 400 - 900 ms, lower when screen is on? recorded one with 110 ms.
-        // diff also recorded with -600 ms..
     }
 
     @Synchronized
     private fun mute() {
-        Log.d(TAG, "mute:Muted")
         isMuted = true
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
     }
 
     @Synchronized
     private fun unmute() {
-        Log.d(TAG, "unmute:Unmuted")
         isMuted = false
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0)
     }
@@ -304,7 +284,6 @@ class LoggerService : Service() {
     }
 
     private fun next() {
-        Log.d(TAG, "NEXT CALLED -----------")
         val actionDown = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_NEXT)
         val actionUp = KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_NEXT)
         with (audioManager) {
@@ -362,6 +341,7 @@ class LoggerService : Service() {
         const val ACTION_MUTE = "MUTE"
         const val DEFAULT_CHANNEL = "MUTE_DEFAULT_CHANNEL"
         const val NOTIFICATION_ID = 3246
+        const val NOTIFICATION_KEY = "spotmute_notification"
         const val UNMUTE_DELAY_BUFFER_DEFAULT = 1500L
         const val UNMUTE_DELAY_BUFFER_KEY = "delay"
         const val MUTE_DELAY_BUFFER_DEFAULT = 100L
