@@ -1,7 +1,6 @@
 package com.developments.samu.muteforspotify.utilities
 
 import android.content.pm.PackageManager
-import android.util.Log
 import com.g00fy2.versioncompare.Version
 
 private const val TAG = "AppUtil"

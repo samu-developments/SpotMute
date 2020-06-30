@@ -10,4 +10,11 @@ data class Song(
         val playbackPosition: Int,
         val playing: Boolean,
         val timeSent: Long,
-        val registeredTime: Long)
+        val registeredTime: Long) {
+
+        val timeRemaining = (length - playbackPosition).toLong()
+        val timeFinish = timeSent + timeRemaining
+        fun propagation() = System.currentTimeMillis() - timeSent
+
+}
+
