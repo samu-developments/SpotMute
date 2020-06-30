@@ -4,10 +4,7 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
-import android.os.Build
-import android.os.Handler
-import android.os.IBinder
-import android.os.Looper
+import android.os.*
 import android.util.Log
 import android.view.KeyEvent
 import androidx.annotation.RequiresApi
@@ -22,6 +19,7 @@ import com.developments.samu.muteforspotify.R
 import com.developments.samu.muteforspotify.data.Song
 import com.developments.samu.muteforspotify.utilities.AppUtil
 import com.developments.samu.muteforspotify.utilities.Spotify
+import java.sql.Time
 
 private const val TAG = "LoggerService"
 
@@ -252,12 +250,22 @@ class LoggerService : Service() {
         }, delay)
     }
 
+    var mutingTime = 0L
+    var prop = 0L
     // set a delayed muting
     private fun setMuteTimer(delay: Long) {
-        Log.d(TAG, "setMuteTimer:Setting mute timer in ${delay}")
+        // difference between when song was supposed to stop and when a new song was logged
+        val diff = mutingTime - System.currentTimeMillis()
+        // how long it took from Spotify made intent till it got logged here
+        prop = System.currentTimeMillis() - lastSong.timeSent
+        Log.d(TAG, "setMuteTimer: diff: ${diff}, diff - prop: ${diff - prop}")
+        // next muting time
+        mutingTime = System.currentTimeMillis() + delay
+        Log.d(TAG, "setMuteTimer: currenttime ${timeHelper()}, delay: $delay, mutingTime: $mutingTime, prop delay: $prop")
         // remove any pending mute requests
         handler.postDelayed({
             Log.d(TAG, "setMuteTimer:Now muting")
+            Log.d(TAG, "setMuteTimer: ${timeHelper()}")
             mute()
             handler.postDelayed({
                 Log.d(TAG, "setMuteTimer:Now logging delayed muting counter")
@@ -266,10 +274,15 @@ class LoggerService : Service() {
                 setNotificationStatus(lastSong, muted = true)
             }, 1000)
             // TODO: this needs to be tested. What is the difference between muted time and new song logged time?
-            // Is the problem muting too early (song cutoff) or muting too late (ad heard) ?
+            // Is the problem muting too early (song cutoff) or muting too late (ad heard -> earlier test shows this) ?
             // -> what should the default value be?
-        }, delay + prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT))
+            // Initial testing: new song logged time is everywhere from 100 ms to 1000 ms BEFORE mute time.
+            // Try to fix this delay by using coroutines, less logic taking up time processing
+        }, delay + 0L /*prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT)*/)
     }
+
+    private fun timeHelper() = "time: ${System.currentTimeMillis()}"
+
 
     @Synchronized
     private fun mute() {
