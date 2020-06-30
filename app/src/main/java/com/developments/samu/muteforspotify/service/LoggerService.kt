@@ -70,7 +70,7 @@ class LoggerService : Service() {
             Intent(this, LoggerService::class.java).apply {
                 action = ACTION_STOP
             },
-            PendingIntent.FLAG_CANCEL_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 
@@ -92,7 +92,7 @@ class LoggerService : Service() {
             Intent(this, LoggerService::class.java).apply {
                 action = ACTION_MUTE
             },
-            PendingIntent.FLAG_CANCEL_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 
