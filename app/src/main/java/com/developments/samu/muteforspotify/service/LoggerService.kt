@@ -238,7 +238,7 @@ class LoggerService : Service() {
         // start new mute timer
         Log.d(TAG, "handleNewSongPlaying:set mute timer")
 
-        setMuteTimer(song.timeRemaining)
+        setMuteTimer(song.timeRemaining - song.propagation())
     }
 
     // wrapper for unmute, removes callbacks
@@ -262,21 +262,20 @@ class LoggerService : Service() {
         //      muting too early -> phone music volume is muted. Is song still playing? Or does Spotify just use too long to switch songs..?
         // if negative, new song was logged before last song was supposed to end -> no mute problems
         prop = lastSong.propagation()
-        Log.d(TAG, "setMuteTimer: diff: ${diff}, (diff - prop): ${diff - prop}, prop: $prop")
+        Log.d(TAG, "setMuteTimer: === diff: ${diff}, (diff - prop): ${diff - prop}, prop: $prop")
         // next muting time
         mutingTime = System.currentTimeMillis() + wait + prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT)
-        // remove any pending mute requests
+
         loggerScope.launch {
             delay(wait + prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT))
-            Log.d(TAG, "setMuteTimer:Now muting")
+            Log.d(TAG, "setMuteTimer: -Now muting-")
             mute()
-            loggerScope.launch {
-                delay(DELAY_LOG_NEW_AD)
-                Log.d(TAG, "setMuteTimer:Now logging delayed muting counter")
-                logAdMuted()
-                setNotificationStatus(lastSong, muted = true)
-                if (prefs.getBoolean(ENABLE_SKIP_KEY, ENABLE_SKIP_DEFAULT)) skipAd()
-            }
+
+            delay(DELAY_LOG_NEW_AD)
+            Log.d(TAG, "setMuteTimer:LOGGING AD MUTED ---------")
+            logAdMuted()
+            setNotificationStatus(lastSong, muted = true)
+            if (prefs.getBoolean(ENABLE_SKIP_KEY, ENABLE_SKIP_DEFAULT)) skipAd()
         }
         // prop is ~ 20 - 70, more often around 40
         // diff is 400 - 900 ms, lower when screen is on? recorded one with 110 ms.
@@ -365,11 +364,11 @@ class LoggerService : Service() {
         const val NOTIFICATION_ID = 3246
         const val UNMUTE_DELAY_BUFFER_DEFAULT = 1500L
         const val UNMUTE_DELAY_BUFFER_KEY = "delay"
-        const val MUTE_DELAY_BUFFER_DEFAULT = 300L
+        const val MUTE_DELAY_BUFFER_DEFAULT = 100L
         const val MUTE_DELAY_BUFFER_KEY = "mute_delay"
         const val ENABLE_SKIP_DEFAULT = false
         const val ENABLE_SKIP_KEY = "skip"
-        const val DELAY_LOG_NEW_AD = 1000L
+        const val DELAY_LOG_NEW_AD = 2000L
         const val SKIP_AD_DELAY = 100L
 
         fun isServiceRunning() = running  // used in tileservice etc.
