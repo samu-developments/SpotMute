@@ -2,7 +2,7 @@
     <string name="app_name">SpotMute</string>
     <string name="tile_mute">Mute ads</string>
 
-    <string name="mute_info_background">Allow SpotMute to run in background!</string>
+    <string name="mute_info_background">Allow SpotMute to run in the background!</string>
     <string name="mute_info_dkma">Click to see %1s\'s background process rating and prevention steps from dontkillmyapp.com</string>
     <string name="mute_info_skip_startup">Ads playing after you skip a track or ads on Spotify startup cannot be muted.</string>
 
@@ -39,12 +39,12 @@
     <string name="dialog_lite_message">Ad detection is unfortunately not possible in Spotify Lite. Please use the full Spotify app.\n\nThis app will exit!</string>
     <string name="dialog_lite_negative">Exit</string>
 
-    <string name="dialog_delay_unmute_title">Unmute Delay</string>
+    <string name="dialog_delay_unmute_title">Unmute delay</string>
     <string name="dialog_delay_unmute_message">Adjust the unmute delay time, in case you hear the last part of an ad. Increase to fix. Default 800 ms.</string>
     <string name="dialog_delay_unmute_negative">Cancel</string>
     <string name="dialog_delay_unmute_positive">Set delay</string>
 
-    <string name="dialog_delay_mute_title">Mute Delay (Advanced)</string>
+    <string name="dialog_delay_mute_title">Mute delay (Advanced)</string>
     <string name="dialog_delay_mute_message">Adjust the mute delay time. Increase to minimize the time phone is muted between songs/an ad. Default 100 ms.</string>
     <string name="dialog_delay_mute_negative">Cancel</string>
     <string name="dialog_delay_mute_positive">Set delay</string>
