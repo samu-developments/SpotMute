@@ -244,21 +244,14 @@ class LoggerService : Service() {
         Log.d(TAG, "setUnmuteTimer: $wait")
         // Spotify sends an intent of a new playing song before the ad is completed -> wait some hundred ms before unmuting
         loggerScope.launch {
-            val diff = System.currentTimeMillis() - lastSongMuteTime
-            prop = lastSong.propagation()
-            Log.d(TAG, "setUnmuteTimer: ${diff} $prop ${diff - prop} (diff=currentTime - muteTime | prop | diff-prop)")
             delay(wait)
             unmute()
         }
     }
 
-    var lastSongMuteTime = 0L
-    var prop = 0L
     private fun setMuteTimer(wait: Long) {
-
         loggerScope.launch {
             val muteDelay = wait + prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT)
-            lastSongMuteTime = System.currentTimeMillis() +  muteDelay
             delay(muteDelay)
             Log.d(TAG, "setMuteTimer: -Now muting-")
             mute()
