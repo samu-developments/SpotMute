@@ -64,19 +64,19 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     }
 
     override fun onBroadcastDialogPositiveClick(dialog: DialogFragment) {
-        setToggleEnabled()
-        prefs.edit(true) {
-            putBoolean(MainActivity.IS_FIRST_LAUNCH_KEY, false)
-        }
-    }
-
-    override fun onBroadcastDialogNegativeClick(dialog: DialogFragment) {
         // Intent.ACTION_APPLICATION_PREFERENCES added in api 24. On API < 24 it will just open Spotify.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) startActivity(Spotify.INTENT_SPOTIFY_SETTINGS)
         else {
             packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
                 startActivity(it)
             }
+        }
+    }
+
+    override fun onBroadcastDialogNegativeClick(dialog: DialogFragment) {
+        setToggleEnabled()
+        prefs.edit(true) {
+            putBoolean(MainActivity.IS_FIRST_LAUNCH_KEY, false)
         }
     }
 
@@ -349,11 +349,11 @@ class BroadcastDialogFragment: DialogFragment() {
             return MaterialAlertDialogBuilder(it).apply {
                 setTitle(getString(R.string.dialog_broadcast_title))
                 setMessage(getString(R.string.dialog_broadcast_message))
-                setPositiveButton(getString(R.string.dialog_broadcast_negative)) { _, _ ->
-                    listener.onBroadcastDialogPositiveClick(this@BroadcastDialogFragment)
-                }
-                setNegativeButton(getString(R.string.dialog_broadcast_positive)) { dialog, _ ->
+                setNegativeButton(getString(R.string.dialog_broadcast_negative)) { _, _ ->
                     listener.onBroadcastDialogNegativeClick(this@BroadcastDialogFragment)
+                }
+                setPositiveButton(getString(R.string.dialog_broadcast_positive)) { dialog, _ ->
+                    listener.onBroadcastDialogPositiveClick(this@BroadcastDialogFragment)
                 }
                 setCancelable(false)  // force user to take an action
             }.create()
