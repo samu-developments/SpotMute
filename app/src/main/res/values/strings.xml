@@ -40,12 +40,12 @@
     <string name="dialog_lite_negative">Exit</string>
 
     <string name="dialog_delay_unmute_title">Unmute Delay</string>
-    <string name="dialog_delay_unmute_message">Adjust the unmute delay time, in case you hear the last part of an ad. Increase to fix. Default 1500 ms.</string>
+    <string name="dialog_delay_unmute_message">Adjust the unmute delay time, in case you hear the last part of an ad. Increase to fix. If you have a newer phone you could try with 800 ms to minimize it. Default 1500 ms.</string>
     <string name="dialog_delay_unmute_negative">Cancel</string>
     <string name="dialog_delay_unmute_positive">Set delay</string>
 
     <string name="dialog_delay_mute_title">Mute Delay</string>
-    <string name="dialog_delay_mute_message">Adjust the mute delay time. Default 0 ms.</string>
+    <string name="dialog_delay_mute_message">Adjust the mute delay time. Increase to minimize the time phone is muted between songs/an ad. Default 100 ms.</string>
     <string name="dialog_delay_mute_negative">Cancel</string>
     <string name="dialog_delay_mute_positive">Set delay</string>
 
