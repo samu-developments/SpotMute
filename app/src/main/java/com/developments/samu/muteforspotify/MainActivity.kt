@@ -148,17 +148,11 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.menu_delay_unmute -> {
-                showDialog(DelayUnmuteDialogFragment(), DelayUnmuteDialogFragment.TAG)
-                true
-            }
-            R.id.menu_delay_mute -> {
-                showDialog(DelayMuteDialogFragment(), DelayMuteDialogFragment.TAG)
-                true
-            }
-            R.id.menu_launch_spotify -> {
-                item.isChecked = !item.isChecked  // pressing checkbox toggles it
-                prefs.edit(true) { putBoolean(PREF_KEY_LAUNCH_SPOTIFY_KEY, item.isChecked) }
+            R.id.menu_settings -> {
+                supportFragmentManager
+                    .beginTransaction()
+                    .replace(R.id.settings_container, MySettingsFragment())
+                    .commit()
                 true
             }
             R.id.menu_skip -> {
