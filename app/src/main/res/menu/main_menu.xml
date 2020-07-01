@@ -21,6 +21,10 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
+        android:id="@+id/menu_rate"
+        android:title="@string/menu_rate"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/menu_dkma"
         android:title="@string/menu_dkma"
         app:showAsAction="never" />

@@ -58,6 +58,8 @@
     <!-- Widget -->
     <string name="widget_content_description">Mute widget</string>
     <string name="menu_launch_spotify">Auto-launch Spotify</string>
+    <string name="toast_counter">If you appreciate SpotMute you could leave a review on Play Store :)</string>
+    <string name="menu_rate">Rate on Play Store</string>
 
 
 </resources>

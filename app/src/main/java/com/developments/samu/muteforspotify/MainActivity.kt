@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
@@ -50,6 +51,10 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         }
         card_view_status.setOnClickListener {
             switch_mute.toggle()
+        }
+
+        card_view_counter.setOnClickListener {
+            Toast.makeText(this, getString(R.string.toast_counter), Toast.LENGTH_LONG).show()
         }
 
         card_view_help.setOnClickListener {
@@ -126,16 +131,25 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
                     LoggerService.ENABLE_SKIP_KEY,
                     LoggerService.ENABLE_SKIP_DEFAULT)
             }
+            findItem(R.id.menu_launch_spotify).apply {
+                isChecked = prefs.getBoolean(
+                    PREF_KEY_LAUNCH_SPOTIFY_KEY,
+                    PREF_KEY_LAUNCH_SPOTIFY_DEFAULT)
+            }
             findItem(R.id.menu_dkma).apply {
                 setOnMenuItemClickListener {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppUtil.DKMA_URL)))
                     true
                 }
             }
-            findItem(R.id.menu_launch_spotify).apply {
-                isChecked = prefs.getBoolean(
-                    PREF_KEY_LAUNCH_SPOTIFY_KEY,
-                    PREF_KEY_LAUNCH_SPOTIFY_DEFAULT)
+            findItem(R.id.menu_rate).apply {
+                setOnMenuItemClickListener {
+                    Intent(Intent.ACTION_VIEW).apply {
+                        data = Uri.parse(AppUtil.SPOTMUTE_PLAY_STORE_URL)
+                        setPackage("com.android.vending")
+                    }.let { startActivity(it) }
+                    true
+                }
             }
             if (supportsSkip(packageManager)) {
                 findItem(R.id.menu_skip).apply {
@@ -180,8 +194,8 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
             else R.string.status_disabled)
 
         card_view_status.setCardBackgroundColor(ContextCompat.getColor(this,
-                if (on) R.color.colorOk
-                else R.color.colorWarning))
+            if (on) R.color.colorOk
+            else R.color.colorWarning))
     }
 
     private fun setToggleEnabled() {
