@@ -7,15 +7,13 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.developments.samu.muteforspotify.service.LoggerService
 import com.developments.samu.muteforspotify.utilities.AppUtil
@@ -24,8 +22,9 @@ import com.developments.samu.muteforspotify.utilities.isPackageInstalled
 import com.developments.samu.muteforspotify.utilities.supportsSkip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
-import dev.doubledot.doki.ui.DokiActivity
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 private const val TAG = "MainActivity"
@@ -125,8 +124,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
             findItem(R.id.menu_skip).apply {
                 isChecked = prefs.getBoolean(
                     LoggerService.ENABLE_SKIP_KEY,
-                    LoggerService.ENABLE_SKIP_DEFAULT
-                )
+                    LoggerService.ENABLE_SKIP_DEFAULT)
             }
             findItem(R.id.menu_dkma).apply {
                 setOnMenuItemClickListener {
@@ -137,8 +135,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
             findItem(R.id.menu_launch_spotify).apply {
                 isChecked = prefs.getBoolean(
                     PREF_KEY_LAUNCH_SPOTIFY_KEY,
-                    PREF_KEY_LAUNCH_SPOTIFY_DEFAULT
-                )
+                    PREF_KEY_LAUNCH_SPOTIFY_DEFAULT)
             }
             if (supportsSkip(packageManager)) {
                 findItem(R.id.menu_skip).apply {
@@ -173,57 +170,44 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         }
     }
 
-    private fun setToggleEnabled() {
-        // should start enabled
-        if (!switch_mute.isChecked) {
-            switch_mute.isChecked = true  // service will start by toggle callback
-        } else if (!LoggerService.isServiceRunning()) {
-            toggleLoggerService(on = true)  // service turned off from outside activity, but toggle is true: just enable service
-        }
+    // subject to this: https://issuetracker.google.com/issues/113122354
+    private fun handleSwitched(on: Boolean) {
+        if (on) this.startService(loggerServiceIntentForeground)
+        else this.stopService(loggerServiceIntentForeground)
+
+        tv_status.text = getString(
+            if (on) R.string.status_enabled
+            else R.string.status_disabled)
+
+        card_view_status.setCardBackgroundColor(ContextCompat.getColor(this,
+                if (on) R.color.colorOk
+                else R.color.colorWarning))
     }
 
-    // subject to this: https://issuetracker.google.com/issues/113122354
-    private fun toggleLoggerService(on: Boolean) {
-        if (on) {
-            startServiceSafe()  // try to start service in a safe way
-            tv_status.text = getString(R.string.status_enabled)
-            card_view_status.setCardBackgroundColor(
-                ContextCompat.getColor(
-                    this,
-                    R.color.colorOk
-                )
-            )
-        } else {
-            this.stopService(loggerServiceIntentForeground)
-            tv_status.text = getString(R.string.status_disabled)
-            card_view_status.setCardBackgroundColor(
-                ContextCompat.getColor(
-                    this,
-                    R.color.colorWarning
-                )
-            )
-
+    private fun setToggleEnabled() {
+        lifecycleScope.launch {
+            if (!startServiceSafe()) return@launch // try to start service in a safe way, otherwise do not update layout
+            switch_mute.isChecked = true  // listener handles layout updates
         }
     }
 
     // workaround https://issuetracker.google.com/issues/11312235421 https://stackoverflow.com/a/55376015
-    fun startServiceSafe() {
+    suspend fun startServiceSafe(): Boolean {
         val runningAppProcesses: List<ActivityManager.RunningAppProcessInfo> =
             (applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).getRunningAppProcesses()
-        val importance = runningAppProcesses[0].importance
         // higher importance has lower number (?)
-        if (importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) this.startService(loggerServiceIntentForeground)
-        else {
-            try {
-                Handler(Looper.getMainLooper()).postDelayed({
-                    this.startService(loggerServiceIntentForeground)
-                }, 500)
-            } catch (_: IllegalStateException) {}
+        if (runningAppProcesses[0].importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+            this.startService(loggerServiceIntentForeground)
+            return true
+        } else {
+            return try {
+                delay(1000)  // hopefully wait for application to run in foreground
+                applicationContext.startService(loggerServiceIntentForeground)
+                true
+            } catch (_: IllegalStateException) {
+                false
+            }
         }
-    }
-
-    private fun handleSwitched(isChecked: Boolean) {
-        toggleLoggerService(isChecked)
     }
 
     companion object {
