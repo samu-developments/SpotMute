@@ -100,7 +100,7 @@ class LoggerService : Service() {
     // dynamically create the notification action mute/unmute, and set the text based on if it is muted or not
     private fun createActionMute(muted: Boolean) =
         NotificationCompat.Action.Builder(
-            if (muted) R.drawable.ic_volume_unmute else R.drawable.ic_volume_mute,
+            if (muted) R.drawable.ic_tile_volume_on else R.drawable.ic_tile_volume_off,
             if (muted) getString(R.string.notif_action_title_unmute) else getString(R.string.notif_action_title_mute),
             notifPendingIntentMute
         )
