@@ -342,8 +342,8 @@ class LoggerService : Service() {
         const val DEFAULT_CHANNEL = "MUTE_DEFAULT_CHANNEL"
         const val NOTIFICATION_ID = 3246
         const val NOTIFICATION_KEY = "spotmute_notification"
-        const val UNMUTE_DELAY_BUFFER_DEFAULT = 1500L
-        const val UNMUTE_DELAY_BUFFER_KEY = "delay"
+        const val UNMUTE_DELAY_BUFFER_DEFAULT = 800L
+        const val UNMUTE_DELAY_BUFFER_KEY = "unmute_delay_v2"
         const val MUTE_DELAY_BUFFER_DEFAULT = 100L
         const val MUTE_DELAY_BUFFER_KEY = "mute_delay"
         const val ENABLE_SKIP_DEFAULT = false
