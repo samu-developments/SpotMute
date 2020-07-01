@@ -29,7 +29,6 @@ class LoggerService : Service() {
 
     @Volatile
     private var isMuted = false
-    private var lastMuteTime = 0L
 
     private var adsMutedCounter = 0
 
@@ -182,10 +181,16 @@ class LoggerService : Service() {
                 * Seen 700ms one time, resulting in a total delay between songs of 1500ms.
                 * Possible solution: consider propagation time when calling setUnmuteTimer
         Muting:
-            - Muting too late -> hears ad, Muting too early -> last part of song skipped
+            - Muting too late -> hears ad
                 * worse than muting too early
                 * add a delay: timeLeft minus propagation delay
                 * add a user configurable delay
+            - Muting too early ->
+                - song is muted before finished
+                - if no ad: new song broadcast is logged, and SpotMute unmutes
+                - user will hear last part of the song, then the new song.
+
+            * better to mute early (no ad heard) -> always unmute with delay (no skipping is heard)
 
      9. Users have to whitelist the app otherwise the service is killed and can't do anything.
 
@@ -227,11 +232,6 @@ class LoggerService : Service() {
         if (isMuted) {  // is muted -> unmute
             // If skip is on, then we know the ad was skipped and we can unmute directly
             if (prefs.getBoolean(ENABLE_SKIP_KEY, ENABLE_SKIP_DEFAULT)) setUnmuteTimer(wait = 0L)
-            // Check if song recently finished -> unmute directly
-            else if (System.currentTimeMillis() - lastMuteTime < AppUtil.AD_TIME_MS) {
-                Log.d(TAG, "handleNewSongPlaying: unmuting early--")
-                setUnmuteTimer(0L)
-            }
             else {
                 // Test with subtracting playback position and propagation delay
                 setUnmuteTimer(wait = prefs.getLong(UNMUTE_DELAY_BUFFER_KEY, UNMUTE_DELAY_BUFFER_DEFAULT) - song.playbackPosition - song.propagation())
@@ -244,6 +244,9 @@ class LoggerService : Service() {
         Log.d(TAG, "setUnmuteTimer: $wait")
         // Spotify sends an intent of a new playing song before the ad is completed -> wait some hundred ms before unmuting
         loggerScope.launch {
+            val diff = System.currentTimeMillis() - lastSongMuteTime
+            prop = lastSong.propagation()
+            Log.d(TAG, "setUnmuteTimer: ${diff} $prop ${diff - prop} (diff=currentTime - muteTime | prop | diff-prop)")
             delay(wait)
             unmute()
         }
@@ -252,15 +255,11 @@ class LoggerService : Service() {
     var lastSongMuteTime = 0L
     var prop = 0L
     private fun setMuteTimer(wait: Long) {
-        val diff = System.currentTimeMillis() - lastSongMuteTime
-
-        prop = lastSong.propagation()
-        Log.d(TAG, "setMuteTimer: ${diff} $prop ${diff - prop} (diff | prop | diff-prop)")
-        // next muting time
-        lastSongMuteTime = System.currentTimeMillis() + wait + prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT)
 
         loggerScope.launch {
-            delay(wait + prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT))
+            val muteDelay = wait + prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT)
+            lastSongMuteTime = System.currentTimeMillis() +  muteDelay
+            delay(muteDelay)
             Log.d(TAG, "setMuteTimer: -Now muting-")
             mute()
 
@@ -275,7 +274,6 @@ class LoggerService : Service() {
     @Synchronized
     private fun mute() {
         isMuted = true
-        lastMuteTime = System.currentTimeMillis()
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
     }
 
