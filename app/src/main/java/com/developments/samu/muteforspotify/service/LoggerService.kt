@@ -29,6 +29,7 @@ class LoggerService : Service() {
 
     @Volatile
     private var isMuted = false
+    private var lastMuteTime = 0L
 
     private var adsMutedCounter = 0
 
@@ -226,6 +227,11 @@ class LoggerService : Service() {
         if (isMuted) {  // is muted -> unmute
             // If skip is on, then we know the ad was skipped and we can unmute directly
             if (prefs.getBoolean(ENABLE_SKIP_KEY, ENABLE_SKIP_DEFAULT)) setUnmuteTimer(wait = 0L)
+            // Check if song recently finished -> unmute directly
+            else if (System.currentTimeMillis() - lastMuteTime < AppUtil.AD_TIME_MS) {
+                Log.d(TAG, "handleNewSongPlaying: unmuting early--")
+                setUnmuteTimer(0L)
+            }
             else {
                 // Test with subtracting playback position and propagation delay
                 setUnmuteTimer(wait = prefs.getLong(UNMUTE_DELAY_BUFFER_KEY, UNMUTE_DELAY_BUFFER_DEFAULT) - song.playbackPosition - song.propagation())
@@ -269,6 +275,7 @@ class LoggerService : Service() {
     @Synchronized
     private fun mute() {
         isMuted = true
+        lastMuteTime = System.currentTimeMillis()
         audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
     }
 

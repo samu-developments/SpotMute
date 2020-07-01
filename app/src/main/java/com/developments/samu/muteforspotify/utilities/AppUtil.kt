@@ -29,6 +29,7 @@ class AppUtil {
     companion object {
         val ONE_SECOND_MS = 1000
         val THREE_SECOND_MS = 3000
+        val AD_TIME_MS = 10000 // 10 second (an ad is supposed to be ~30 sec, but could be less?
         val DKMA_URL = "https://dontkillmyapp.com/"
     }
 }
