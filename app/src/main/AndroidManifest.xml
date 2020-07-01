@@ -23,6 +23,10 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".DokiThemedActivity"
+            android:theme="@style/DokiTheme"/>
+
         <service
                 android:name=".service.MuteTileService"
                 android:icon="@drawable/ic_tile_volume_off"

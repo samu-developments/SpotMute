@@ -3,6 +3,7 @@ package com.developments.samu.muteforspotify
 import android.app.Dialog
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -35,4 +36,20 @@ class DokiDialog : DialogFragment() {
             DokiDialog().show(context, tag)
         }
     }
+}
+
+class DokiThemedActivity : AppCompatActivity() {
+
+    private val dokiContent: DokiContentView? by lazy {
+        findViewById<DokiContentView?>(R.id.doki_content)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_doki)
+
+        dokiContent?.setOnCloseListener { supportFinishAfterTransition() }
+        dokiContent?.loadContent()
+    }
+
 }

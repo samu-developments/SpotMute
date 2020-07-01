@@ -24,6 +24,7 @@ import com.developments.samu.muteforspotify.utilities.isPackageInstalled
 import com.developments.samu.muteforspotify.utilities.supportsSkip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
+import dev.doubledot.doki.ui.DokiActivity
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -52,7 +53,9 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
             switch_mute.toggle()
         }
 
-        card_view_help.setOnClickListener { DokiDialog.show(this@MainActivity) }
+        card_view_help.setOnClickListener {
+            startActivity(Intent(this@MainActivity, DokiThemedActivity::class.java))
+        }
         tv_help_dkma.text = getString(R.string.mute_info_dkma, Build.MANUFACTURER)
 
         // if user updates Spotify, disable skipping

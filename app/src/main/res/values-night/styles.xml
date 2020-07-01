@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="DokiTheme" parent="Doki.Body">
-        <item name="dokiBackgroundColor">@color/colorSurfaceDark</item>
+    <style name="DokiTheme" parent="AppTheme">
+        <item name="dokiBackgroundColor">?attr/colorSurface</item>
         <item name="dokiPrimaryTextColor">?android:attr/textColorPrimary</item>
         <item name="dokiSecondaryTextColor">?android:attr/textColorSecondary</item>
+        <item name="dokiDividerColor">?attr/colorSurface</item>
     </style>
+
 </resources>
