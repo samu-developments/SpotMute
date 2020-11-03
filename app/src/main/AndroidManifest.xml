@@ -4,6 +4,11 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <queries>
+        <package android:name="com.spotify.music" />
+        <package android:name="com.spotify.lite" />
+    </queries>
+
     <application
             android:name=".MuteApplication"
             android:allowBackup="true"

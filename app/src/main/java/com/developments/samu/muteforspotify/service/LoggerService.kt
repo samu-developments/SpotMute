@@ -20,6 +20,9 @@ import com.developments.samu.muteforspotify.data.Song
 import com.developments.samu.muteforspotify.utilities.AppUtil
 import com.developments.samu.muteforspotify.utilities.Spotify
 import kotlinx.coroutines.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.TemporalAmount
 
 private const val TAG = "LoggerService"
 
@@ -158,6 +161,7 @@ class LoggerService : Service() {
         updateWidgets(this)
     }
 
+
     private fun getMusicVolume() = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
 
     /*
@@ -241,7 +245,7 @@ class LoggerService : Service() {
     }
 
     private fun setUnmuteTimer(wait: Long) {
-        Log.d(TAG, "setUnmuteTimer: $wait")
+        Log.d(TAG, "setUnmuteTimer: delay: $wait when: ${LocalDateTime.now().plusNanos(wait*1000000).format(DateTimeFormatter.ofPattern("HH:mm:ss:SS"))} now: ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss:SS"))}")
         // Spotify sends an intent of a new playing song before the ad is completed -> wait some hundred ms before unmuting
         loggerScope.launch {
             delay(wait)
@@ -252,12 +256,13 @@ class LoggerService : Service() {
     private fun setMuteTimer(wait: Long) {
         loggerScope.launch {
             val muteDelay = wait + prefs.getLong(MUTE_DELAY_BUFFER_KEY, MUTE_DELAY_BUFFER_DEFAULT)
+            Log.d(TAG, "setMuteTimer: delay: $wait when: ${LocalDateTime.now().plusNanos(wait*1000000).format(DateTimeFormatter.ofPattern("HH:mm:ss:SS"))} now: ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss:SS"))}")
             delay(muteDelay)
-            Log.d(TAG, "setMuteTimer: -Now muting-")
+            Log.d(TAG, "setMuteTimer: -Now muting- ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss:SS"))}")
             mute()
 
             delay(DELAY_LOG_NEW_AD)
-            Log.d(TAG, "setMuteTimer:LOGGING AD MUTED ---------")
+            Log.d(TAG, "setMuteTimer:LOGGING AD MUTED --------- ${LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss:SS"))}")
             logAdMuted()
             setNotificationStatus(lastSong, muted = true)
             if (prefs.getBoolean(ENABLE_SKIP_KEY, ENABLE_SKIP_DEFAULT)) skipAd()
