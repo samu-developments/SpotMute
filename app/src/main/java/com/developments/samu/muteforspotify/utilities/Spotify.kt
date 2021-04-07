@@ -17,7 +17,7 @@ class Spotify {
         const val PACKAGE_NAME_LITE = "com.spotify.lite"
         const val VERSION_SKIP_SUPPORTED = "8.4.60.741"
 
-            const val PLAYBACK_STATE_CHANGED = "com.spotify.music.playbackstatechanged"
+        const val PLAYBACK_STATE_CHANGED = "com.spotify.music.playbackstatechanged"
         const val METADATA_CHANGED = "com.spotify.music.metadatachanged"
         val INTENT_FILTER = IntentFilter().apply {
             addAction(PLAYBACK_STATE_CHANGED)
@@ -30,31 +30,31 @@ class Spotify {
 
         // returns a broadcastreceiver with implemented callback
         fun spotifyReceiver(callback: ((Song) -> Unit)): BroadcastReceiver =
-                object : BroadcastReceiver() {
-                    override fun onReceive(context: Context?, intent: Intent?) {
-                        if (intent == null) return
-                        createSongFromIntent(intent)?.let { callback(it) }
-                    }
+            object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    if (intent == null) return
+                    createSongFromIntent(intent)?.let { callback(it) }
                 }
+            }
 
         fun createSongFromIntent(intent: Intent): Song? {
-           /* with (intent.extras) {
-                this?.keySet()?.forEach {
-                    Log.d(LOG_TAG, "key: $it, ${this.get(it)}")
-                }
-            }*/
+            /* with (intent.extras) {
+                 this?.keySet()?.forEach {
+                     Log.d(LOG_TAG, "key: $it, ${this.get(it)}")
+                 }
+             }*/
             with (intent) {
                 try {  // Do not trust Spotify. Ever.
                     val song = Song(
-                            getStringExtra("id") ?: "",
-                            getStringExtra("artist") ?: "",
-                            getStringExtra("album") ?: "",
-                            getStringExtra("track") ?: "",
-                            getIntExtra("length", -1),
-                            getIntExtra("playbackPosition", -1),
-                            intent.getBooleanExtra("playing", false),
-                            getLongExtra("timeSent", -1L),
-                            System.currentTimeMillis()
+                        getStringExtra("id") ?: "",
+                        getStringExtra("artist") ?: "",
+                        getStringExtra("album") ?: "",
+                        getStringExtra("track") ?: "",
+                        getIntExtra("length", -1),
+                        getIntExtra("playbackPosition", -1),
+                        intent.getBooleanExtra("playing", false),
+                        getLongExtra("timeSent", -1L),
+                        System.currentTimeMillis()
                     )
                     //Log.d("intent", "action: ${intent.action}, song: ${song.track}")
 

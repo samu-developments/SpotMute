@@ -20,7 +20,6 @@ import com.developments.samu.muteforspotify.service.LoggerService
 import com.developments.samu.muteforspotify.utilities.AppUtil
 import com.developments.samu.muteforspotify.utilities.Spotify
 import com.developments.samu.muteforspotify.utilities.isPackageInstalled
-import com.developments.samu.muteforspotify.utilities.supportsSkip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.activity_main.*
@@ -61,13 +60,6 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
             startActivity(Intent(this@MainActivity, DokiThemedActivity::class.java))
         }
         tv_help_dkma.text = getString(R.string.mute_info_dkma, Build.MANUFACTURER)
-
-        // if user updates Spotify, disable skipping
-        if (!supportsSkip(packageManager)) {
-            PreferenceManager.getDefaultSharedPreferences(this).edit(true) {
-                putBoolean(LoggerService.ENABLE_SKIP_KEY, false)
-            }
-        }
     }
 
     override fun onBroadcastDialogPositiveClick(dialog: DialogFragment) {
@@ -126,11 +118,6 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         with(menu) {
-            findItem(R.id.menu_skip).apply {
-                isChecked = prefs.getBoolean(
-                    LoggerService.ENABLE_SKIP_KEY,
-                    LoggerService.ENABLE_SKIP_DEFAULT)
-            }
             findItem(R.id.menu_launch_spotify).apply {
                 isChecked = prefs.getBoolean(
                     PREF_KEY_LAUNCH_SPOTIFY_KEY,
@@ -151,11 +138,6 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
                     true
                 }
             }
-            if (supportsSkip(packageManager)) {
-                findItem(R.id.menu_skip).apply {
-                    isVisible = true
-                }
-            }
         }
         return true
     }
@@ -173,11 +155,6 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
             R.id.menu_launch_spotify -> {
                 item.isChecked = !item.isChecked  // pressing checkbox toggles it
                 prefs.edit(true) { putBoolean(PREF_KEY_LAUNCH_SPOTIFY_KEY, item.isChecked) }
-                true
-            }
-            R.id.menu_skip -> {
-                item.isChecked = !item.isChecked  // pressing checkbox toggles it
-                prefs.edit(true) { putBoolean(LoggerService.ENABLE_SKIP_KEY, item.isChecked) }
                 true
             }
             else -> super.onOptionsItemSelected(item)

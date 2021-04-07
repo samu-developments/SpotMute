@@ -1,12 +1,13 @@
 package com.developments.samu.muteforspotify.utilities
 
 import android.content.pm.PackageManager
-import com.g00fy2.versioncompare.Version
+import org.threeten.bp.Instant
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.ZoneId
+import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.format.FormatStyle
 
 private const val TAG = "AppUtil"
-/*
-  Welcome to the class with the weird stuff.
- */
 
 fun isPackageInstalled(packageManager: PackageManager, packageName: String): Boolean {
     return try {
@@ -16,14 +17,12 @@ fun isPackageInstalled(packageManager: PackageManager, packageName: String): Boo
     }
 }
 
-fun supportsSkip(packageManager: PackageManager): Boolean {
-    return try {
-        val app = packageManager.getPackageInfo(Spotify.PACKAGE_NAME, 0) ?: return false
-        Version(Spotify.VERSION_SKIP_SUPPORTED).isAtLeast(app.versionName)
-    } catch (e: PackageManager.NameNotFoundException) {
-        false
-    }
-}
+fun LocalDateTime.toReadableString(): String = this.format(
+    DateTimeFormatter.ofLocalizedTime(
+        FormatStyle.MEDIUM))
+
+fun Long.toLocalDateTime(): LocalDateTime =
+    LocalDateTime.ofInstant(Instant.ofEpochMilli(this), ZoneId.systemDefault())
 
 class AppUtil {
     companion object {
@@ -34,3 +33,4 @@ class AppUtil {
         val SPOTMUTE_PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.developments.samu.muteforspotify"
     }
 }
+
