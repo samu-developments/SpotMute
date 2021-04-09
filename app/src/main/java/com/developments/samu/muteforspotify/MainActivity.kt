@@ -17,9 +17,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.developments.samu.muteforspotify.service.LoggerService
-import com.developments.samu.muteforspotify.utilities.AppUtil
-import com.developments.samu.muteforspotify.utilities.Spotify
-import com.developments.samu.muteforspotify.utilities.isPackageInstalled
+import com.developments.samu.muteforspotify.utilities.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.activity_main.*
@@ -74,9 +72,6 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
     override fun onBroadcastDialogNegativeClick(dialog: DialogFragment) {
         setToggleEnabled()
-        prefs.edit(true) {
-            putBoolean(MainActivity.IS_FIRST_LAUNCH_KEY, false)
-        }
     }
 
     private fun showCompatibilityDialog() = when {
@@ -99,7 +94,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
     override fun onResume() {
         super.onResume()
-        intent.extras?.keySet()?.contains(LoggerService.NOTIFICATION_KEY) ?: let {
+        intent.extras?.keySet()?.contains(LoggerService.NOTIFICATION_KEY) ?: kotlin.run {
             if (prefs.getBoolean(PREF_KEY_LAUNCH_SPOTIFY_KEY, PREF_KEY_LAUNCH_SPOTIFY_DEFAULT)) {
                 packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
                     startActivity(it)
@@ -110,7 +105,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
         val adsMuted = prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER, 0)
         tv_ad_counter.text = getString(R.string.mute_info_ad_counter, adsMuted)
-        if (prefs.getBoolean(IS_FIRST_LAUNCH_KEY, true)) showCompatibilityDialog()
+        if (!prefs.hasDbsEnabled()) showCompatibilityDialog()
         else setToggleEnabled()
 
     }
@@ -202,7 +197,6 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     }
 
     companion object {
-        const val IS_FIRST_LAUNCH_KEY = "first_launch"
         const val PREF_KEY_ADS_MUTED_COUNTER = "ads_muted_counter"
         const val PREF_KEY_LAUNCH_SPOTIFY_KEY = "launch_spotify"
         const val PREF_KEY_LAUNCH_SPOTIFY_DEFAULT = false
@@ -216,7 +210,7 @@ class DelayUnmuteDialogFragment : DialogFragment() {
             val inflatedView = layoutInflater.inflate(R.layout.dialog_delay, null)
             val prefs = PreferenceManager.getDefaultSharedPreferences(it)
             val edDelay = inflatedView.findViewById<TextInputEditText>(R.id.edit_text_delay).apply {
-                hint = prefs.getLong(LoggerService.UNMUTE_DELAY_BUFFER_KEY, LoggerService.UNMUTE_DELAY_BUFFER_DEFAULT).toString()
+                hint = prefs.getUnmuteDelay().toString()
             }
 
             return MaterialAlertDialogBuilder(it).apply {
@@ -225,7 +219,7 @@ class DelayUnmuteDialogFragment : DialogFragment() {
                 setView(inflatedView)
                 setPositiveButton(getString(R.string.dialog_delay_unmute_positive)) { _, _ ->
                     edDelay.text.toString().toLongOrNull()?.let {
-                        prefs.edit(true) { putLong(LoggerService.UNMUTE_DELAY_BUFFER_KEY, it) }
+                        prefs.edit(true) { putLong(LoggerService.PREF_UNMUTE_DELAY_BUFFER_KEY, it) }
                     }
                 }
                 setNegativeButton(getString(R.string.dialog_delay_unmute_negative)) { _, _ ->
@@ -246,7 +240,7 @@ class DelayMuteDialogFragment : DialogFragment() {
             val inflatedView = layoutInflater.inflate(R.layout.dialog_delay, null)
             val prefs = PreferenceManager.getDefaultSharedPreferences(it)
             val edDelay = inflatedView.findViewById<TextInputEditText>(R.id.edit_text_delay).apply {
-                hint = prefs.getLong(LoggerService.MUTE_DELAY_BUFFER_KEY, LoggerService.MUTE_DELAY_BUFFER_DEFAULT).toString()
+                hint = prefs.getLong(LoggerService.PREF_MUTE_DELAY_BUFFER_KEY, LoggerService.PREF_MUTE_DELAY_BUFFER_DEFAULT).toString()
             }
 
             return MaterialAlertDialogBuilder(it).apply {
@@ -255,7 +249,7 @@ class DelayMuteDialogFragment : DialogFragment() {
                 setView(inflatedView)
                 setPositiveButton(getString(R.string.dialog_delay_mute_positive)) { _, _ ->
                     edDelay.text.toString().toLongOrNull()?.let {
-                        prefs.edit(true) { putLong(LoggerService.MUTE_DELAY_BUFFER_KEY, it) }
+                        prefs.edit(true) { putLong(LoggerService.PREF_MUTE_DELAY_BUFFER_KEY, it) }
                     }
                 }
                 setNegativeButton(getString(R.string.dialog_delay_mute_negative)) { _, _ ->
@@ -310,7 +304,7 @@ class SpotifyNotInstalledDialogFragment: DialogFragment() {
 
 class BroadcastDialogFragment: DialogFragment() {
 
-    internal lateinit var listener: BroadcastDialogListener
+    private lateinit var listener: BroadcastDialogListener
 
     interface BroadcastDialogListener {
         fun onBroadcastDialogPositiveClick(dialog: DialogFragment)
@@ -333,8 +327,9 @@ class BroadcastDialogFragment: DialogFragment() {
                 setPositiveButton(getString(R.string.dialog_broadcast_positive)) { dialog, _ ->
                     listener.onBroadcastDialogPositiveClick(this@BroadcastDialogFragment)
                 }
-                setCancelable(false)  // force user to take an action
-            }.create()
+            }.create().also { dialog ->
+                dialog.setCanceledOnTouchOutside(false)
+            }
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 

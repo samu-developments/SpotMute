@@ -1,6 +1,8 @@
 package com.developments.samu.muteforspotify.utilities
 
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import com.developments.samu.muteforspotify.service.LoggerService
 import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneId
@@ -34,3 +36,17 @@ class AppUtil {
     }
 }
 
+fun SharedPreferences.hasDbsEnabled() = getBoolean(
+    LoggerService.PREF_DEVICE_BROADCAST_ENABLED_KEY,
+    LoggerService.PREF_DEVICE_BROADCAST_ENABLED_DEFAULT
+)
+
+fun SharedPreferences.getUnmuteDelay() = getLong(
+    LoggerService.PREF_UNMUTE_DELAY_BUFFER_KEY,
+    LoggerService.PREF_UNMUTE_DELAY_BUFFER_DEFAULT
+)
+
+fun SharedPreferences.getMuteDelay() = getLong(
+    LoggerService.PREF_MUTE_DELAY_BUFFER_KEY,
+    LoggerService.PREF_MUTE_DELAY_BUFFER_DEFAULT
+)

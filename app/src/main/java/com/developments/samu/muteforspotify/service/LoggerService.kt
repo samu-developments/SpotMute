@@ -7,7 +7,6 @@ import android.content.SharedPreferences
 import android.media.AudioManager
 import android.os.*
 import android.util.Log
-import android.view.KeyEvent
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -19,14 +18,8 @@ import com.developments.samu.muteforspotify.MuteWidget
 import com.developments.samu.muteforspotify.R
 import com.developments.samu.muteforspotify.data.Song
 import com.developments.samu.muteforspotify.data.isDuplicateOf
-import com.developments.samu.muteforspotify.utilities.Spotify
-import com.developments.samu.muteforspotify.utilities.toLocalDateTime
-import com.developments.samu.muteforspotify.utilities.toReadableString
+import com.developments.samu.muteforspotify.utilities.*
 import kotlinx.coroutines.*
-import org.threeten.bp.Instant
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.LocalTime
-import org.threeten.bp.ZoneId
 
 
 private const val TAG = "LoggerService"
@@ -159,6 +152,15 @@ class LoggerService : Service() {
 
     private fun getMusicVolume() = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
 
+    // keep track of if we know that device broadcast status has been enabled by the user
+    private fun handleDeviceBroadcastStatusState() {
+        if (!prefs.hasDbsEnabled()) {
+            prefs.edit(true) {
+                putBoolean(PREF_DEVICE_BROADCAST_ENABLED_KEY, true)
+            }
+        }
+    }
+
     /*
     Here is where most of the fun happens; the main muting/unmuting logic. Things to consider:
      1. Spotify sends broadcast when playback changes; play/pause/next track (see https://developer.spotify.com/documentation/android/guides/android-media-notifications/)
@@ -198,8 +200,10 @@ class LoggerService : Service() {
     private fun handleSongIntent(song: Song) {
         // Logic to find out if Spotify is spamming broadcasts, return early
         if (song.isDuplicateOf(lastSong)) return
-
         Log.d(TAG, "log: $song")
+
+        handleDeviceBroadcastStatusState()
+
         lastSong = song  // keep track of the last logged song
 
         when {
@@ -213,11 +217,6 @@ class LoggerService : Service() {
         loggerScope.coroutineContext.cancelChildren()
         setNotificationStatus(song, isMuted)  // could be muted (user paused an ad)
     }
-
-    fun SharedPreferences.getUnmuteDelay() = getLong(
-        UNMUTE_DELAY_BUFFER_KEY,
-        UNMUTE_DELAY_BUFFER_DEFAULT
-    )
 
     private fun handleNewSongPlaying(newSong: Song) {
         loggerScope.coroutineContext.cancelChildren()
@@ -238,11 +237,6 @@ class LoggerService : Service() {
             unmute()
         }
     }
-
-    fun SharedPreferences.getMuteDelay() = getLong(
-        MUTE_DELAY_BUFFER_KEY,
-        MUTE_DELAY_BUFFER_DEFAULT
-    )
 
     private fun setMuteTimer(wait: Long) {
         loggerScope.launch {
@@ -324,10 +318,12 @@ class LoggerService : Service() {
         const val DEFAULT_CHANNEL = "MUTE_DEFAULT_CHANNEL"
         const val NOTIFICATION_ID = 3246
         const val NOTIFICATION_KEY = "spotmute_notification"
-        const val UNMUTE_DELAY_BUFFER_DEFAULT = 800L
-        const val UNMUTE_DELAY_BUFFER_KEY = "unmute_delay_v2"
-        const val MUTE_DELAY_BUFFER_DEFAULT = 100L
-        const val MUTE_DELAY_BUFFER_KEY = "mute_delay"
+        const val PREF_UNMUTE_DELAY_BUFFER_DEFAULT = 800L
+        const val PREF_UNMUTE_DELAY_BUFFER_KEY = "unmute_delay_v2"
+        const val PREF_MUTE_DELAY_BUFFER_DEFAULT = 100L
+        const val PREF_MUTE_DELAY_BUFFER_KEY = "mute_delay"
+        const val PREF_DEVICE_BROADCAST_ENABLED_KEY = "device_broadcast_enabled"
+        const val PREF_DEVICE_BROADCAST_ENABLED_DEFAULT = false
         const val DELAY_LOG_NEW_AD = 2000L
         const val SKIP_AD_DELAY = 100L
 
