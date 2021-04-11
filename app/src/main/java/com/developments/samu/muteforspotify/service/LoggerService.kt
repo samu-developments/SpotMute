@@ -3,7 +3,6 @@ package com.developments.samu.muteforspotify.service
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.media.AudioManager
 import android.os.*
 import android.util.Log
@@ -121,7 +120,7 @@ class LoggerService : Service() {
         // check if song is not finished playing, in that case set a new mute timer
         val timeLeft = lastSong.timeFinish - System.currentTimeMillis()
         if (timeLeft > 0) {
-            setMuteTimer(timeLeft)  // set a new mute timer, if song still playing
+            setMuteTimer(timeLeft + prefs.getMuteDelay())  // set a new mute timer, if song still playing
         }
     }
 
@@ -169,37 +168,34 @@ class LoggerService : Service() {
      4. Then just mute when the song finishes and no new song is detected, and finally unmute when a new song is detected. Easy right?
 
      The fun stuff:
-     5. Spotify often send multiple intents, with only 10-100 ms in between. They can arrive in random order and seems to overload the muting logic if it is not handled.
-     6. The intent can arrive both before and after the current song is finished playing. This buffer time is not very deterministic,
+     1. Spotify often send multiple intents, with only 10-100 ms in between. They can arrive in random order and seems to overload the muting logic if it is not handled.
+     2. The intent can arrive both before and after the current song is finished playing. This buffer time is not very deterministic,
         it depends on how fast the intent arrived, which is device/environment specific.
         Unmuting:
             - Spotify can send intent before ad is finished, if muting without delay the user will hear the last part of an ad
                 * Add delay to unmuting.
             - Spotify can send the intent of a new playing song a while after it started playing:
-                * I've logged over 800ms one time.
+                - I've logged over 800ms one time.
                 * Possible solution: consider playbackPosition when calling setUnmuteTimer
             - If the broadcast in Android is logged delayed, there is additional delay before SpotMute receives it and can unmute.
-                * Seen 700ms one time, resulting in a total delay between songs of 1500ms.
+                - Seen 700ms one time, resulting in a total delay between songs of 1500ms.
                 * Possible solution: consider propagation time when calling setUnmuteTimer
         Muting:
             - Muting too late -> hears ad
-                * worse than muting too early
+                - worse than muting too early
                 * add a delay: timeLeft minus propagation delay
                 * add a user configurable delay
             - Muting too early ->
                 - song is muted before finished
-                - if no ad: new song broadcast is logged, and SpotMute unmutes
-                - user will hear last part of the song, then the new song.
+                 * better to mute early (no ad heard) -> always unmute with delay
 
-            * better to mute early (no ad heard) -> always unmute with delay (no skipping is heard)
-
-     9. Users have to whitelist the app otherwise the service is killed and can't do anything.
-
+     3. Users have to whitelist the app otherwise the service is killed and can't do anything.
      */
 
     private fun handleSongIntent(song: Song) {
         // Logic to find out if Spotify is spamming broadcasts, return early
         if (song.isDuplicateOf(lastSong)) return
+
         Log.d(TAG, "log: $song")
 
         handleDeviceBroadcastStatusState()
@@ -221,27 +217,26 @@ class LoggerService : Service() {
     private fun handleNewSongPlaying(newSong: Song) {
         loggerScope.coroutineContext.cancelChildren()
         setNotificationStatus(newSong, false)
-        if (isMuted) {  // is muted -> unmute
+
+        if (isMuted) {
             setUnmuteTimer(
-                wait = -newSong.playbackPosition - newSong.propagation  // yes, negative delay
+                wait = prefs.getUnmuteDelay() - newSong.playbackPosition - newSong.propagation()
             )
         }
-        setMuteTimer(newSong.timeRemaining)
+        setMuteTimer(newSong.systemTimeLeft() + prefs.getMuteDelay())
     }
 
+    // Spotify sends an intent of a new playing song before the ad is completed -> wait some hundred ms before unmuting
     private fun setUnmuteTimer(wait: Long) {
-        // Spotify sends an intent of a new playing song before the ad is completed -> wait some hundred ms before unmuting
         loggerScope.launch {
-            val unmuteDelay = prefs.getUnmuteDelay() + wait
-            delay(unmuteDelay)
+            delay(wait)
             unmute()
         }
     }
 
     private fun setMuteTimer(wait: Long) {
         loggerScope.launch {
-            val muteDelay = wait + prefs.getMuteDelay()
-            delay(muteDelay)
+            delay(wait)
             mute()
             delay(DELAY_LOG_NEW_AD)
             logAdMuted()
@@ -325,7 +320,6 @@ class LoggerService : Service() {
         const val PREF_DEVICE_BROADCAST_ENABLED_KEY = "device_broadcast_enabled"
         const val PREF_DEVICE_BROADCAST_ENABLED_DEFAULT = false
         const val DELAY_LOG_NEW_AD = 2000L
-        const val SKIP_AD_DELAY = 100L
 
         fun isServiceRunning() = running  // used in tileservice etc.
 

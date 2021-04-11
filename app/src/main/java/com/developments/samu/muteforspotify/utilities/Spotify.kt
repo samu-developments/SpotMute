@@ -50,11 +50,11 @@ class Spotify {
                         getStringExtra("artist") ?: "",
                         getStringExtra("album") ?: "",
                         getStringExtra("track") ?: "",
-                        getIntExtra("length", -1),
-                        getIntExtra("playbackPosition", -1),
-                        intent.getBooleanExtra("playing", false),
-                        getLongExtra("timeSent", -1L),
-                        System.currentTimeMillis()
+                        length = getIntExtra("length", -1),
+                        playbackPosition = getIntExtra("playbackPosition", -1),
+                        playing = intent.getBooleanExtra("playing", false),
+                        timeSent = getLongExtra("timeSent", -1L),
+                        registeredTime = System.currentTimeMillis()
                     )
                     //Log.d("intent", "action: ${intent.action}, song: ${song.track}")
 

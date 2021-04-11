@@ -14,10 +14,9 @@ data class Song(
     val timeSent: Long = 0L,
     val registeredTime: Long = 0L
 ) {
-
-    val propagation = registeredTime - timeSent
-    val timeRemaining = length - playbackPosition - propagation
-    val timeFinish = timeSent + length - playbackPosition
+    fun propagation() = System.currentTimeMillis() - timeSent
+    fun systemTimeLeft() = System.currentTimeMillis() - timeFinish
+    val timeFinish = timeSent + (length - playbackPosition)
 }
 
 fun Song.isSongReset(prevSong: Song): Boolean {

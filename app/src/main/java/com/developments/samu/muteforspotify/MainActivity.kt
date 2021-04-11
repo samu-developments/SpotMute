@@ -105,9 +105,8 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
         val adsMuted = prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER, 0)
         tv_ad_counter.text = getString(R.string.mute_info_ad_counter, adsMuted)
-        if (!prefs.hasDbsEnabled()) showCompatibilityDialog()
+        if (!prefs.hasDbsEnabled() || prefs.getBoolean(IS_FIRST_LAUNCH_KEY, false)) showCompatibilityDialog() // first_launch for compatibility
         else setToggleEnabled()
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -197,6 +196,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     }
 
     companion object {
+        const val IS_FIRST_LAUNCH_KEY = "first_launch"
         const val PREF_KEY_ADS_MUTED_COUNTER = "ads_muted_counter"
         const val PREF_KEY_LAUNCH_SPOTIFY_KEY = "launch_spotify"
         const val PREF_KEY_LAUNCH_SPOTIFY_DEFAULT = false
