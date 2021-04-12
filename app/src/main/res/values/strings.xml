@@ -41,26 +41,47 @@
     <string name="dialog_lite_negative">Exit</string>
 
     <string name="dialog_delay_unmute_title">Unmute delay</string>
-    <string name="dialog_delay_unmute_message">Adjust the unmute delay time, in case you hear the last part of an ad. Increase to fix. Default 800 ms.</string>
+    <string name="settings_unmute_summary">Adjust the unmute delay time, in case you hear the last part of an ad. Increase to fix. Default 800 ms.</string>
     <string name="dialog_delay_unmute_negative">Cancel</string>
     <string name="dialog_delay_unmute_positive">Set delay</string>
 
     <string name="dialog_delay_mute_title">Mute delay (Advanced)</string>
-    <string name="dialog_delay_mute_message">Adjust the mute delay time. Increase to minimize the time phone is muted between songs/an ad. Default 100 ms.</string>
+    <string name="settings_mute_summary">Adjust the mute delay time. Increase to minimize the time phone is muted between songs/an ad. Default 100 ms.</string>
     <string name="dialog_delay_mute_negative">Cancel</string>
     <string name="dialog_delay_mute_positive">Set delay</string>
 
     <!-- Menu -->
-    <string name="menu_unmute_delay">Unmute delay</string>
-    <string name="menu_mute_delay">Mute delay</string>
+    <string name="settings_unmute">Unmute delay</string>
+    <string name="settings_mute">Mute delay</string>
     <string name="menu_enable_skip">Skip (tablet only, beta)</string>
     <string name="menu_dkma">dontkillmyapp.com</string>
 
     <!-- Widget -->
     <string name="widget_content_description">Mute widget</string>
-    <string name="menu_launch_spotify">Auto-launch Spotify</string>
+    <string name="launch_spotify">Auto-launch Spotify</string>
+    <string name="settings_launch_spotify">Launch Spotify directly when SpotMute is opened. You can get back to SpotMute by clicking the notification.</string>
     <string name="toast_counter">If you appreciate SpotMute you could leave a review on Play Store :)</string>
     <string name="menu_rate">Rate on Play Store</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="settings">Settings</string>
+    <string name="launch_spotify_key">launch_spotify</string>
+    <string name="settings_unmute_key">unmute_delay_v2</string>
+    <string name="settings_mute_key">mute_delay</string>
 
 
 </resources>

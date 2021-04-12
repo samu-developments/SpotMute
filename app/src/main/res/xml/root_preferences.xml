@@ -1,0 +1,32 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory app:title="Muting">
+
+        <EditTextPreference
+            app:key="@string/settings_mute_key"
+            app:title="@string/settings_mute"
+            app:dialogMessage="@string/settings_mute_summary"
+            app:useSimpleSummaryProvider="true"
+            android:defaultValue="@integer/mute_delay_default" />
+
+        <EditTextPreference
+            app:key="@string/settings_unmute_key"
+            app:title="@string/settings_unmute"
+            app:dialogMessage="@string/settings_unmute_summary"
+            app:useSimpleSummaryProvider="true"
+            android:defaultValue="@integer/unmute_delay_default" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Utils">
+
+        <SwitchPreferenceCompat
+            app:key="@string/launch_spotify_key"
+            app:summary="@string/settings_launch_spotify"
+            app:title="@string/launch_spotify" />
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

@@ -4,7 +4,8 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
-import android.os.*
+import android.os.Build
+import android.os.IBinder
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -120,7 +121,7 @@ class LoggerService : Service() {
         // check if song is not finished playing, in that case set a new mute timer
         val timeLeft = lastSong.timeFinish - System.currentTimeMillis()
         if (timeLeft > 0) {
-            setMuteTimer(timeLeft + prefs.getMuteDelay())  // set a new mute timer, if song still playing
+            setMuteTimer(timeLeft + getMuteDelay())  // set a new mute timer, if song still playing
         }
     }
 
@@ -210,24 +211,37 @@ class LoggerService : Service() {
 
     // remove all timers.
     private fun handleSongNotPlaying(song: Song) {
+        Log.d(TAG, "Handle song not playing")
         loggerScope.coroutineContext.cancelChildren()
         setNotificationStatus(song, isMuted)  // could be muted (user paused an ad)
     }
 
     private fun handleNewSongPlaying(newSong: Song) {
+        Log.d(TAG, "Handle song playing")
         loggerScope.coroutineContext.cancelChildren()
         setNotificationStatus(newSong, false)
 
         if (isMuted) {
             setUnmuteTimer(
-                wait = prefs.getUnmuteDelay() - newSong.playbackPosition - newSong.propagation()
+                wait = getUnuteDelay() - newSong.playbackPosition - newSong.propagation()
             )
         }
-        setMuteTimer(newSong.systemTimeLeft() + prefs.getMuteDelay())
+        setMuteTimer(newSong.systemTimeLeft() + getMuteDelay())
+    }
+
+    private fun getMuteDelay(): Int {
+        val delay = prefs.getString(getString(R.string.settings_mute_key), PREF_MUTE_DELAY_DEFAULT.toString())!!
+        return Integer.parseInt(delay)
+    }
+
+    private fun getUnuteDelay(): Int {
+        val delay = prefs.getString(getString(R.string.settings_unmute_key), PREF_UNMUTE_DELAY_DEFAULT.toString())!!
+        return Integer.parseInt(delay)
     }
 
     // Spotify sends an intent of a new playing song before the ad is completed -> wait some hundred ms before unmuting
     private fun setUnmuteTimer(wait: Long) {
+        Log.d(TAG, "Unmuting in $wait ms")
         loggerScope.launch {
             delay(wait)
             unmute()
@@ -235,6 +249,7 @@ class LoggerService : Service() {
     }
 
     private fun setMuteTimer(wait: Long) {
+        Log.d(TAG, "Muting in $wait ms")
         loggerScope.launch {
             delay(wait)
             mute()
@@ -313,10 +328,8 @@ class LoggerService : Service() {
         const val DEFAULT_CHANNEL = "MUTE_DEFAULT_CHANNEL"
         const val NOTIFICATION_ID = 3246
         const val NOTIFICATION_KEY = "spotmute_notification"
-        const val PREF_UNMUTE_DELAY_BUFFER_DEFAULT = 800L
-        const val PREF_UNMUTE_DELAY_BUFFER_KEY = "unmute_delay_v2"
-        const val PREF_MUTE_DELAY_BUFFER_DEFAULT = 100L
-        const val PREF_MUTE_DELAY_BUFFER_KEY = "mute_delay"
+        const val PREF_UNMUTE_DELAY_DEFAULT = 800
+        const val PREF_MUTE_DELAY_DEFAULT = 100
         const val PREF_DEVICE_BROADCAST_ENABLED_KEY = "device_broadcast_enabled"
         const val PREF_DEVICE_BROADCAST_ENABLED_DEFAULT = false
         const val DELAY_LOG_NEW_AD = 2000L

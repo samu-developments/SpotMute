@@ -79,7 +79,10 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
             showDialog(BroadcastDialogFragment(), BroadcastDialogFragment.TAG)
         isPackageInstalled(packageManager, Spotify.PACKAGE_NAME_LITE) ->
             showDialog(SpotifyLiteDialogFragment(), SpotifyLiteDialogFragment.TAG)
-        else -> showDialog(SpotifyNotInstalledDialogFragment(), SpotifyNotInstalledDialogFragment.TAG)
+        else -> showDialog(
+            SpotifyNotInstalledDialogFragment(),
+            SpotifyNotInstalledDialogFragment.TAG
+        )
     }
 
     private fun showDialog(dialog: DialogFragment, tag: String) {
@@ -95,7 +98,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     override fun onResume() {
         super.onResume()
         intent.extras?.keySet()?.contains(LoggerService.NOTIFICATION_KEY) ?: kotlin.run {
-            if (prefs.getBoolean(PREF_KEY_LAUNCH_SPOTIFY_KEY, PREF_KEY_LAUNCH_SPOTIFY_DEFAULT)) {
+            if (prefs.getBoolean(getString(R.string.launch_spotify_key), PREF_KEY_LAUNCH_SPOTIFY_DEFAULT)) {
                 packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
                     startActivity(it)
                 }
@@ -105,6 +108,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
         val adsMuted = prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER, 0)
         tv_ad_counter.text = getString(R.string.mute_info_ad_counter, adsMuted)
+
         if (!prefs.hasDbsEnabled() || prefs.getBoolean(IS_FIRST_LAUNCH_KEY, false)) showCompatibilityDialog() // first_launch for compatibility
         else setToggleEnabled()
     }
@@ -112,11 +116,6 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         with(menu) {
-            findItem(R.id.menu_launch_spotify).apply {
-                isChecked = prefs.getBoolean(
-                    PREF_KEY_LAUNCH_SPOTIFY_KEY,
-                    PREF_KEY_LAUNCH_SPOTIFY_DEFAULT)
-            }
             findItem(R.id.menu_dkma).apply {
                 setOnMenuItemClickListener {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppUtil.DKMA_URL)))
@@ -138,17 +137,9 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.menu_delay_unmute -> {
-                showDialog(DelayUnmuteDialogFragment(), DelayUnmuteDialogFragment.TAG)
-                true
-            }
-            R.id.menu_delay_mute -> {
-                showDialog(DelayMuteDialogFragment(), DelayMuteDialogFragment.TAG)
-                true
-            }
-            R.id.menu_launch_spotify -> {
-                item.isChecked = !item.isChecked  // pressing checkbox toggles it
-                prefs.edit(true) { putBoolean(PREF_KEY_LAUNCH_SPOTIFY_KEY, item.isChecked) }
+            R.id.menu_settings -> {
+                val myIntent = Intent(this, SettingsActivity::class.java)
+                startActivity(myIntent)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -162,11 +153,16 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
         tv_status.text = getString(
             if (on) R.string.status_enabled
-            else R.string.status_disabled)
+            else R.string.status_disabled
+        )
 
-        card_view_status.setCardBackgroundColor(ContextCompat.getColor(this,
-            if (on) R.color.colorOk
-            else R.color.colorWarning))
+        card_view_status.setCardBackgroundColor(
+            ContextCompat.getColor(
+                this,
+                if (on) R.color.colorOk
+                else R.color.colorWarning
+            )
+        )
     }
 
     private fun setToggleEnabled() {
@@ -198,69 +194,8 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     companion object {
         const val IS_FIRST_LAUNCH_KEY = "first_launch"
         const val PREF_KEY_ADS_MUTED_COUNTER = "ads_muted_counter"
-        const val PREF_KEY_LAUNCH_SPOTIFY_KEY = "launch_spotify"
         const val PREF_KEY_LAUNCH_SPOTIFY_DEFAULT = false
 
-    }
-}
-
-class DelayUnmuteDialogFragment : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return activity?.let {
-            val inflatedView = layoutInflater.inflate(R.layout.dialog_delay, null)
-            val prefs = PreferenceManager.getDefaultSharedPreferences(it)
-            val edDelay = inflatedView.findViewById<TextInputEditText>(R.id.edit_text_delay).apply {
-                hint = prefs.getUnmuteDelay().toString()
-            }
-
-            return MaterialAlertDialogBuilder(it).apply {
-                setTitle(getString(R.string.dialog_delay_unmute_title))
-                setMessage(getString(R.string.dialog_delay_unmute_message))
-                setView(inflatedView)
-                setPositiveButton(getString(R.string.dialog_delay_unmute_positive)) { _, _ ->
-                    edDelay.text.toString().toLongOrNull()?.let {
-                        prefs.edit(true) { putLong(LoggerService.PREF_UNMUTE_DELAY_BUFFER_KEY, it) }
-                    }
-                }
-                setNegativeButton(getString(R.string.dialog_delay_unmute_negative)) { _, _ ->
-                    dismiss()
-                }
-            }.create()
-        } ?: throw IllegalStateException("Activity cannot be null")
-    }
-
-    companion object {
-        const val TAG = "delay_unmute_tag"
-    }
-}
-
-class DelayMuteDialogFragment : DialogFragment() {
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return activity?.let {
-            val inflatedView = layoutInflater.inflate(R.layout.dialog_delay, null)
-            val prefs = PreferenceManager.getDefaultSharedPreferences(it)
-            val edDelay = inflatedView.findViewById<TextInputEditText>(R.id.edit_text_delay).apply {
-                hint = prefs.getLong(LoggerService.PREF_MUTE_DELAY_BUFFER_KEY, LoggerService.PREF_MUTE_DELAY_BUFFER_DEFAULT).toString()
-            }
-
-            return MaterialAlertDialogBuilder(it).apply {
-                setTitle(getString(R.string.dialog_delay_mute_title))
-                setMessage(getString(R.string.dialog_delay_mute_message))
-                setView(inflatedView)
-                setPositiveButton(getString(R.string.dialog_delay_mute_positive)) { _, _ ->
-                    edDelay.text.toString().toLongOrNull()?.let {
-                        prefs.edit(true) { putLong(LoggerService.PREF_MUTE_DELAY_BUFFER_KEY, it) }
-                    }
-                }
-                setNegativeButton(getString(R.string.dialog_delay_mute_negative)) { _, _ ->
-                    dismiss()
-                }
-            }.create()
-        } ?: throw IllegalStateException("Activity cannot be null")
-    }
-
-    companion object {
-        const val TAG = "delay_mute_tag"
     }
 }
 
@@ -273,8 +208,9 @@ class SpotifyLiteDialogFragment: DialogFragment() {
                 setNegativeButton(getString(R.string.dialog_lite_negative)) { _, _ ->
                     it.finish()
                 }
-                setCancelable(false)  // force user to take an action
-            }.create()
+            }.create().also { dialog ->
+                dialog.setCanceledOnTouchOutside(false)
+            }
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
@@ -292,8 +228,9 @@ class SpotifyNotInstalledDialogFragment: DialogFragment() {
                 setNegativeButton(getString(R.string.dialog_package_negative)) { _, _ ->
                     it.finish()
                 }
-                setCancelable(false)  // force user to take an action
-            }.create()
+            }.create().also { dialog ->
+                dialog.setCanceledOnTouchOutside(false)
+            }
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
