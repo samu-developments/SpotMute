@@ -15,7 +15,7 @@ data class Song(
     val registeredTime: Long = 0L
 ) {
     fun propagation() = System.currentTimeMillis() - timeSent
-    fun systemTimeLeft() = System.currentTimeMillis() - timeFinish
+    fun systemTimeLeft() = timeFinish - System.currentTimeMillis()
     val timeFinish = timeSent + (length - playbackPosition)
 }
 
