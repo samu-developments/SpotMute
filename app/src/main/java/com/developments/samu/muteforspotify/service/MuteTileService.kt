@@ -22,7 +22,7 @@ class MuteTileService : TileService() {
     
     override fun onClick() {
         // tile can be quite unresponsive, a click can be registered several seconds after happening.
-        if (qsTile.state == Tile.STATE_INACTIVE) {
+        if (qsTile?.state == Tile.STATE_INACTIVE) {
             ContextCompat.startForegroundService(this, loggerServiceIntentForeground)
             toggleTile(on=true)
         } else {
@@ -33,9 +33,10 @@ class MuteTileService : TileService() {
     }
 
     private fun toggleTile(on: Boolean) {
-        qsTile.apply {
-            state = if (on) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
-        }.run { updateTile() }
+        qsTile?.let {
+            it.state = if (on) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
+            it.updateTile()
+        }
     }
 }
 
