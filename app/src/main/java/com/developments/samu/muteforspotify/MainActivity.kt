@@ -12,14 +12,12 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.content.edit
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.developments.samu.muteforspotify.service.LoggerService
 import com.developments.samu.muteforspotify.utilities.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -44,7 +42,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         setContentView(R.layout.activity_main)
 
         switch_mute.setOnCheckedChangeListener { _, isChecked ->
-            handleSwitched(isChecked)
+            handleToggleClicked(on = isChecked)
         }
         card_view_status.setOnClickListener {
             switch_mute.toggle()
@@ -71,7 +69,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     }
 
     override fun onBroadcastDialogNegativeClick(dialog: DialogFragment) {
-        setToggleEnabled()
+        switch_mute.isChecked = true
     }
 
     private fun showCompatibilityDialog() = when {
@@ -110,7 +108,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         tv_ad_counter.text = getString(R.string.mute_info_ad_counter, adsMuted)
 
         if (!prefs.hasDbsEnabled() || prefs.getBoolean(IS_FIRST_LAUNCH_KEY, false)) showCompatibilityDialog() // first_launch for compatibility
-        else setToggleEnabled()
+        else startServiceAndSetToggle()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -146,42 +144,55 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         }
     }
 
+    private fun handleToggleClicked(on: Boolean) {
+        if (on) {
+            lifecycleScope.launch {
+                startServiceAndSetToggle()
+            }
+        } else {
+            this.stopService(loggerServiceIntentForeground)
+            updateUiFromToggleState(toggleOn = false)
+        }
+    }
+
     // subject to this: https://issuetracker.google.com/issues/113122354
-    private fun handleSwitched(on: Boolean) {
-        if (on) this.startService(loggerServiceIntentForeground)
-        else this.stopService(loggerServiceIntentForeground)
+    private fun updateUiFromToggleState(toggleOn: Boolean) {
+        switch_mute.isChecked = toggleOn
 
         tv_status.text = getString(
-            if (on) R.string.status_enabled
+            if (toggleOn) R.string.status_enabled
             else R.string.status_disabled
         )
 
         card_view_status.setCardBackgroundColor(
             ContextCompat.getColor(
                 this,
-                if (on) R.color.colorOk
+                if (toggleOn) R.color.colorOk
                 else R.color.colorWarning
             )
         )
     }
 
-    private fun setToggleEnabled() {
+    private fun startServiceAndSetToggle() {
         lifecycleScope.launch {
-            if (!startServiceSafe()) return@launch // try to start service in a safe way, otherwise do not update layout
-            switch_mute.isChecked = true  // listener handles layout updates
+            val enabledSuccessfully = startServiceSafe()
+            if (!enabledSuccessfully) {
+                Toast.makeText(this@MainActivity, getString(R.string.toast_service_could_not_start_error), Toast.LENGTH_LONG).show()
+            }
+            updateUiFromToggleState(toggleOn = enabledSuccessfully)
         }
     }
 
     // workaround https://issuetracker.google.com/issues/11312235421 https://stackoverflow.com/a/55376015
-    suspend fun startServiceSafe(): Boolean {
+    private suspend fun startServiceSafe(): Boolean {
         val runningAppProcesses: List<ActivityManager.RunningAppProcessInfo> =
-            (applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).getRunningAppProcesses()
+            (applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager).runningAppProcesses
         // higher importance has lower number (?)
-        if (runningAppProcesses[0].importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
+        return if (runningAppProcesses[0].importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
             this.startService(loggerServiceIntentForeground)
-            return true
+            true
         } else {
-            return try {
+            try {
                 delay(1000)  // hopefully wait for application to run in foreground
                 applicationContext.startService(loggerServiceIntentForeground)
                 true

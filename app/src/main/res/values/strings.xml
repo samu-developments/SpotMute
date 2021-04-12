@@ -82,6 +82,7 @@
     <string name="launch_spotify_key">launch_spotify</string>
     <string name="settings_unmute_key">unmute_delay_v2</string>
     <string name="settings_mute_key">mute_delay</string>
+    <string name="toast_service_could_not_start_error">Could not start service, please try again!</string>
 
 
 </resources>
