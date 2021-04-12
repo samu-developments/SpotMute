@@ -15,7 +15,6 @@ class Spotify {
 
         const val PACKAGE_NAME = "com.spotify.music"
         const val PACKAGE_NAME_LITE = "com.spotify.lite"
-        const val VERSION_SKIP_SUPPORTED = "8.4.60.741"
 
         const val PLAYBACK_STATE_CHANGED = "com.spotify.music.playbackstatechanged"
         const val METADATA_CHANGED = "com.spotify.music.metadatachanged"
