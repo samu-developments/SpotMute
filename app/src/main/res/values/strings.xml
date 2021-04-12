@@ -5,7 +5,7 @@
     <string name="mute_info_background">Allow SpotMute to run in the background!</string>
     <string name="mute_info_dkma">Click to see %1s\'s background process rating and prevention steps from dontkillmyapp.com</string>
     <string name="mute_info_skip_startup">Ads playing after you skip a track or ads on Spotify startup cannot be muted.</string>
-    <string name="mute_info_not_updating">If the \'Last song\' in the notification is not updated, it is a sign that either SpotMute has been killed by your system!</string>
+    <string name="mute_info_not_updating">If the \'Last song\' in the notification is not updated, it is a sign that SpotMute has been killed by your system!</string>
 
 
     <string name="ads_muted">Ads muted</string>
