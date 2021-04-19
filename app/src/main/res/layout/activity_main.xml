@@ -47,6 +47,7 @@
                 android:text="@string/status_disabled"
                 android:textAlignment="center"
                 android:textSize="36sp"
+                style="@style/TextAppearance.AppCompat.Headline"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
