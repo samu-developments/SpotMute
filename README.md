@@ -12,7 +12,7 @@ Spotify documentation: https://developer.spotify.com/documentation/android/guide
 
 All muting logic is done in [LoggerService.](app/src/main/java/com/developments/samu/muteforspotify/service/LoggerService.kt)
 
-<img src="resources/Screenshots/main_dark.png" alt="main dark" width="250"/> <img src="resources/Screenshots/muting_dark.png" alt="main dark" width="250"/>
+<img src="resources/graphic/screenshots/main_dark.png" alt="main dark" width="250"/> <img src="resources/graphic/screenshots/muting_dark.png" alt="main dark" width="250"/>
 
 
 
