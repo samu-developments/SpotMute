@@ -229,15 +229,9 @@ class LoggerService : Service() {
         setMuteTimer(newSong.systemTimeLeft() + getMuteDelay())
     }
 
-    private fun getMuteDelay(): Int {
-        val delay = prefs.getString(getString(R.string.settings_mute_key), PREF_MUTE_DELAY_DEFAULT.toString())!!
-        return Integer.parseInt(delay)
-    }
+    private fun getMuteDelay() = prefs.getLong(getString(R.string.settings_mute_key), PREF_MUTE_DELAY_DEFAULT)
 
-    private fun getUnuteDelay(): Int {
-        val delay = prefs.getString(getString(R.string.settings_unmute_key), PREF_UNMUTE_DELAY_DEFAULT.toString())!!
-        return Integer.parseInt(delay)
-    }
+    private fun getUnuteDelay() = prefs.getLong(getString(R.string.settings_unmute_key), PREF_UNMUTE_DELAY_DEFAULT)
 
     // Spotify sends an intent of a new playing song before the ad is completed -> wait some hundred ms before unmuting
     private fun setUnmuteTimer(wait: Long) {
@@ -328,11 +322,11 @@ class LoggerService : Service() {
         const val DEFAULT_CHANNEL = "MUTE_DEFAULT_CHANNEL"
         const val NOTIFICATION_ID = 3246
         const val NOTIFICATION_KEY = "spotmute_notification"
-        const val PREF_UNMUTE_DELAY_DEFAULT = 800
-        const val PREF_MUTE_DELAY_DEFAULT = 100
+        const val PREF_UNMUTE_DELAY_DEFAULT = 800L
+        const val PREF_MUTE_DELAY_DEFAULT = 100L
         const val PREF_DEVICE_BROADCAST_ENABLED_KEY = "device_broadcast_enabled"
         const val PREF_DEVICE_BROADCAST_ENABLED_DEFAULT = false
-        const val DELAY_LOG_NEW_AD = 2000L
+        const val DELAY_LOG_NEW_AD = 5000L
 
         fun isServiceRunning() = running  // used in tileservice etc.
 

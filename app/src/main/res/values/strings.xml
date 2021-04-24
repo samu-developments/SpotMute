@@ -80,8 +80,8 @@
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="settings">Settings</string>
     <string name="launch_spotify_key">launch_spotify</string>
-    <string name="settings_unmute_key">unmute_delay_v2</string>
-    <string name="settings_mute_key">mute_delay</string>
+    <string name="settings_unmute_key">unmute_delay_v3</string>
+    <string name="settings_mute_key">mute_delay_v3</string>
     <string name="toast_service_could_not_start_error">Could not start service, please try again!</string>
 
 
