@@ -223,15 +223,19 @@ class LoggerService : Service() {
 
         if (isMuted) {
             setUnmuteTimer(
-                wait = getUnuteDelay() - newSong.playbackPosition - newSong.propagation()
+                wait = getUnmuteDelay() - newSong.playbackPosition - newSong.propagation()
             )
         }
         setMuteTimer(newSong.systemTimeLeft() + getMuteDelay())
     }
 
-    private fun getMuteDelay() = prefs.getLong(getString(R.string.settings_mute_key), PREF_MUTE_DELAY_DEFAULT)
+    private fun getMuteDelay(): Long {
+        return prefs.getString(getString(R.string.settings_mute_key), PREF_MUTE_DELAY_DEFAULT.toString())?.toLongOrNull() ?: PREF_MUTE_DELAY_DEFAULT
+    }
 
-    private fun getUnuteDelay() = prefs.getLong(getString(R.string.settings_unmute_key), PREF_UNMUTE_DELAY_DEFAULT)
+    private fun getUnmuteDelay(): Long {
+        return prefs.getString(getString(R.string.settings_unmute_key), PREF_UNMUTE_DELAY_DEFAULT.toString())?.toLongOrNull() ?: PREF_UNMUTE_DELAY_DEFAULT
+    }
 
     // Spotify sends an intent of a new playing song before the ad is completed -> wait some hundred ms before unmuting
     private fun setUnmuteTimer(wait: Long) {

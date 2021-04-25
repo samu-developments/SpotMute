@@ -43,7 +43,10 @@ class SettingsActivity : AppCompatActivity() {
                     editText.inputType = InputType.TYPE_CLASS_NUMBER or TYPE_NUMBER_FLAG_SIGNED
                 }
                 setOnPreferenceChangeListener { preference, newValue ->
-                    (newValue as String).isNotBlank()
+                    with(newValue as String) {
+                        isNotBlank()
+                        toLongOrNull() != null
+                    }
                 }
             }
 
@@ -52,7 +55,10 @@ class SettingsActivity : AppCompatActivity() {
                     editText.inputType = InputType.TYPE_CLASS_NUMBER or TYPE_NUMBER_FLAG_SIGNED
                 }
                 setOnPreferenceChangeListener { preference, newValue ->
-                    (newValue as String).isNotBlank()
+                    with(newValue as String) {
+                        isNotBlank()
+                        toLongOrNull() != null
+                    }
                 }
             }
         }
