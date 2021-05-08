@@ -15,7 +15,8 @@ class Spotify {
 
         const val PACKAGE_NAME = "com.spotify.music"
         const val PACKAGE_NAME_LITE = "com.spotify.lite"
-
+        const val PACKAGE_NAME_ATV = "com.spotify.tv.android"
+        
         const val PLAYBACK_STATE_CHANGED = "com.spotify.music.playbackstatechanged"
         const val METADATA_CHANGED = "com.spotify.music.metadatachanged"
         val INTENT_FILTER = IntentFilter().apply {
