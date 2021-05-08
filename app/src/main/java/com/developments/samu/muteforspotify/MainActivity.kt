@@ -77,6 +77,8 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
             showDialog(BroadcastDialogFragment(), BroadcastDialogFragment.TAG)
         isPackageInstalled(packageManager, Spotify.PACKAGE_NAME_LITE) ->
             showDialog(SpotifyLiteDialogFragment(), SpotifyLiteDialogFragment.TAG)
+        isPackageInstalled(packageManager, Spotify.PACKAGE_NAME_ATV) ->
+            showDialog(SpotifyLiteDialogFragment(), SpotifyLiteDialogFragment.TAG)
         else -> showDialog(
             SpotifyNotInstalledDialogFragment(),
             SpotifyNotInstalledDialogFragment.TAG
