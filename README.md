@@ -49,6 +49,7 @@ Note that media notifications (Device Broadcast Status) need to be enabled manua
 Thanks to contributing projects! 
 * <a href="https://github.com/doubledotlabs/doki">doubledotlabs/doki</a>
 * <a href="https://github.com/urbandroid-team/dont-kill-my-app">urbandroid-team/dont-kill-my-app</a>
+* <a href="https://github.com/judemanutd/AutoStarter">judemanutd/AutoStarter</a>
 
 
 ### License
