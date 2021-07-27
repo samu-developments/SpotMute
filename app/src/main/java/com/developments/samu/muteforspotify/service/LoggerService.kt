@@ -30,6 +30,7 @@ class LoggerService : Service() {
 
     @Volatile
     private var isMuted = false
+    private var previousVolume = 0
 
     private var adsMutedCounter = 0
 
@@ -147,6 +148,7 @@ class LoggerService : Service() {
             startForeground(NOTIFICATION_ID, it.build())
         }
         running = true
+        previousVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         updateWidgets(this)
     }
 
@@ -260,13 +262,28 @@ class LoggerService : Service() {
     @Synchronized
     private fun mute() {
         isMuted = true
-        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
+
+        if (shouldPlayAdsOnLowestVolume()) {
+            previousVolume = getMusicVolume()
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 1, 0)
+        } else {
+            audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0)
+        }
     }
+
+    private fun shouldPlayAdsOnLowestVolume() = prefs.getBoolean(getString(R.string.settings_use_lowest_volume_key), PREF_USE_LOWEST_VOLUME_DEFAULT)
 
     @Synchronized
     private fun unmute() {
         isMuted = false
-        audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0)
+
+        if (shouldPlayAdsOnLowestVolume()) {
+            if (previousVolume == 0 || getMusicVolume() != 0) return
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, previousVolume, 0)
+        } else {
+            audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0)
+        }
+
     }
 
     private fun logAdMuted() {
@@ -328,6 +345,7 @@ class LoggerService : Service() {
         const val NOTIFICATION_KEY = "spotmute_notification"
         const val PREF_UNMUTE_DELAY_DEFAULT = 800L
         const val PREF_MUTE_DELAY_DEFAULT = 100L
+        const val PREF_USE_LOWEST_VOLUME_DEFAULT = false
         const val PREF_DEVICE_BROADCAST_ENABLED_KEY = "device_broadcast_enabled"
         const val PREF_DEVICE_BROADCAST_ENABLED_DEFAULT = false
         const val DELAY_LOG_NEW_AD = 5000L

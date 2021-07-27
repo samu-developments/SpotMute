@@ -41,19 +41,18 @@
     <string name="dialog_lite_negative">Exit</string>
 
     <string name="dialog_delay_unmute_title">Unmute delay</string>
-    <string name="settings_unmute_summary">Adjust the unmute delay time, in case you hear the last part of an ad. Increase to fix. Default 800 ms.</string>
+    <string name="settings_unmute_summary">Adjust the unmute delay time. Increase the value in case you regularly hear the last part of ads. Default 800 ms.</string>
     <string name="dialog_delay_unmute_negative">Cancel</string>
     <string name="dialog_delay_unmute_positive">Set delay</string>
 
     <string name="dialog_delay_mute_title">Mute delay (Advanced)</string>
-    <string name="settings_mute_summary">Adjust the mute delay time. Increase to minimize the time phone is muted between songs/an ad. Default 100 ms.</string>
+    <string name="settings_mute_summary">Adjust the mute delay time. Decrease the value in case you regularly hear the beginning of ads. Default 100 ms.</string>
     <string name="dialog_delay_mute_negative">Cancel</string>
     <string name="dialog_delay_mute_positive">Set delay</string>
 
     <!-- Menu -->
     <string name="settings_unmute">Unmute delay</string>
     <string name="settings_mute">Mute delay</string>
-    <string name="menu_enable_skip">Skip (tablet only, beta)</string>
     <string name="menu_dkma">dontkillmyapp.com</string>
 
     <!-- Widget -->
@@ -64,24 +63,13 @@
     <string name="menu_rate">Rate on Play Store</string>
     <string name="title_activity_settings">Settings</string>
 
-    <!-- Preference Titles -->
-    <string name="messages_header">Messages</string>
-    <string name="sync_header">Sync</string>
-
-    <!-- Messages Preferences -->
-    <string name="signature_title">Your signature</string>
-    <string name="reply_title">Default reply action</string>
-
-    <!-- Sync Preferences -->
-    <string name="sync_title">Sync email periodically</string>
-    <string name="attachment_title">Download incoming attachments</string>
-    <string name="attachment_summary_on">Automatically download attachments for incoming emails
-    </string>
-    <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="settings">Settings</string>
     <string name="launch_spotify_key">launch_spotify</string>
     <string name="settings_unmute_key">unmute_delay_v3</string>
     <string name="settings_mute_key">mute_delay_v3</string>
+    <string name="settings_use_lowest_volume_key">lowest_volume</string>
+    <string name="settings_use_lowest_volume_title">DON\'T SHOUT!</string>
+    <string name="settings_use_lowest_volume_summary">Instead of muting ads, silence them on the lowest volume level. This feature is in beta, please report on Play Store how it works.</string>
     <string name="toast_service_could_not_start_error">Could not start service, please try again!</string>
 
     <string name="settings_broadcast_status_title">Device Broadcast Status</string>

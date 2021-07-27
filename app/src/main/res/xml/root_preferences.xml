@@ -28,5 +28,14 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="Beta">
+
+        <SwitchPreferenceCompat
+            app:key="@string/settings_use_lowest_volume_key"
+            app:summary="@string/settings_use_lowest_volume_summary"
+            app:title="@string/settings_use_lowest_volume_title" />
+
+    </PreferenceCategory>
+
 
 </PreferenceScreen>

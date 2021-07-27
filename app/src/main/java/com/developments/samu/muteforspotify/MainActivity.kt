@@ -218,6 +218,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         const val IS_FIRST_LAUNCH_KEY = "first_launch"
         const val PREF_KEY_ADS_MUTED_COUNTER = "ads_muted_counter"
         const val PREF_KEY_LAUNCH_SPOTIFY_DEFAULT = false
+        const val PREF_KEY_USE_LOWEST_VOLUME = false
 
     }
 }
