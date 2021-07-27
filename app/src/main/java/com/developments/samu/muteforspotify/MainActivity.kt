@@ -18,6 +18,7 @@ import androidx.preference.PreferenceManager
 import com.developments.samu.muteforspotify.service.LoggerService
 import com.developments.samu.muteforspotify.utilities.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.judemanutd.autostarter.AutoStartPermissionHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -53,9 +54,20 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         }
 
         card_view_help.setOnClickListener {
-            startActivity(Intent(this@MainActivity, DokiThemedActivity::class.java))
+            startActivity(Intent(this, DokiThemedActivity::class.java))
         }
         tv_help_dkma.text = getString(R.string.mute_info_dkma, Build.MANUFACTURER)
+
+        if (AutoStartPermissionHelper.getInstance().isAutoStartPermissionAvailable(this)) {
+            tv_help_dkma.text = getString(R.string.open_autostarter)
+            card_view_help.setOnClickListener {
+                if (AutoStartPermissionHelper.getInstance().getAutoStartPermission(this, open = false)) {
+                    AutoStartPermissionHelper.getInstance().getAutoStartPermission(this)
+                } else {
+                    startActivity(Intent(this, DokiThemedActivity::class.java))
+                }
+            }
+        }
     }
 
     override fun onBroadcastDialogPositiveClick(dialog: DialogFragment) {

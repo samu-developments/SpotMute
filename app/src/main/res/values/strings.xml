@@ -85,5 +85,6 @@
     <string name="toast_service_could_not_start_error">Could not start service, please try again!</string>
 
     <string name="settings_broadcast_status_title">Device Broadcast Status</string>
+    <string name="open_autostarter">Click to open the battery optimization settings page, and allow SpotMute to run in the background.</string>
 
 </resources>
