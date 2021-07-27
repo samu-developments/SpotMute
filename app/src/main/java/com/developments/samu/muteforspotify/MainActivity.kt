@@ -267,8 +267,8 @@ class BroadcastDialogFragment: DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             return MaterialAlertDialogBuilder(it).apply {
-                setTitle(getString(R.string.dialog_broadcast_title))
-                setMessage(getString(R.string.dialog_broadcast_message))
+                setTitle(getString(R.string.dialog_broadcast_title, getString(R.string.settings_broadcast_status_title)))
+                setMessage(getString(R.string.dialog_broadcast_message, getString(R.string.settings_broadcast_status_title)))
                 setNegativeButton(getString(R.string.dialog_broadcast_negative)) { _, _ ->
                     listener.onBroadcastDialogNegativeClick(this@BroadcastDialogFragment)
                 }

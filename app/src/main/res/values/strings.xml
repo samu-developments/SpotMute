@@ -23,11 +23,11 @@
     <string name="notif_content_listening">Ads muted this session: %1$d</string>
     <string name="notif_last_detected_song_time">Last song: %1$s (%2$s)</string>
     <string name="notif_error_detecting_ads">Error, cannot detect ads!</string>
-    <string name="notif_error_broadcast">Enable \'Device Broadcast Status\' in Spotify!</string>
+    <string name="notif_error_broadcast">Enable \'%1$s\' in Spotify!</string>
 
     <!-- Dialog -->
-    <string name="dialog_broadcast_title">Enable Device Broadcast Status</string>
-    <string name="dialog_broadcast_message">SpotMute needs \'Device Broadcast Status\' enabled in
+    <string name="dialog_broadcast_title">Enable %1$s</string>
+    <string name="dialog_broadcast_message">SpotMute needs \'%1$s\' enabled in
         Spotify to work. Go to Spotify settings and enable it. Note that this message will continue to show until SpotMute has been able to detect a song.</string>
     <string name="dialog_broadcast_positive">Open Spotify</string>
     <string name="dialog_broadcast_negative">I have enabled it!</string>
@@ -84,5 +84,6 @@
     <string name="settings_mute_key">mute_delay_v3</string>
     <string name="toast_service_could_not_start_error">Could not start service, please try again!</string>
 
+    <string name="settings_broadcast_status_title">Device Broadcast Status</string>
 
 </resources>
