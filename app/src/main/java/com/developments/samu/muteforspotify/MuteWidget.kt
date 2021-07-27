@@ -76,7 +76,7 @@ class MuteWidget : AppWidgetProvider() {
         }
 
         fun getImageResource(muteIcon: Boolean) =
-            if (muteIcon) R.drawable.ic_tile_volume_off
-            else R.drawable.ic_tile_volume_on
+            if (muteIcon) R.drawable.ic_tile_volume_off_widget
+            else R.drawable.ic_tile_volume_on_widget
     }
 }

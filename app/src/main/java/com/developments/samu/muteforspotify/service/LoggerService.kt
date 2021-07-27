@@ -130,7 +130,7 @@ class LoggerService : Service() {
         when (intent?.action) {
             ACTION_START_FOREGROUND -> startLoggerService()
             ACTION_STOP -> stopSelf()
-            ACTION_MUTE -> if (getMusicVolume() == 0) actionUnmute() else actionMute()
+            ACTION_MUTE -> if (isMuted || (getMusicVolume() == 1 && previousVolume != getMusicVolume())) actionUnmute() else actionMute()
         }
         return START_STICKY
     }
@@ -278,12 +278,11 @@ class LoggerService : Service() {
         isMuted = false
 
         if (shouldPlayAdsOnLowestVolume()) {
-            if (previousVolume == 0 || getMusicVolume() != 0) return
+            if (previousVolume == 0 || getMusicVolume() != 1) return
             audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, previousVolume, 0)
         } else {
             audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_UNMUTE, 0)
         }
-
     }
 
     private fun logAdMuted() {
