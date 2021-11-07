@@ -3,6 +3,7 @@ package com.developments.samu.muteforspotify.utilities
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Build
+import com.developments.samu.muteforspotify.MainActivity
 import com.developments.samu.muteforspotify.service.LoggerService
 import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
@@ -43,3 +44,9 @@ fun SharedPreferences.hasDbsEnabled() = getBoolean(
     LoggerService.PREF_DEVICE_BROADCAST_ENABLED_KEY,
     LoggerService.PREF_DEVICE_BROADCAST_ENABLED_DEFAULT
 )
+
+fun SharedPreferences.hasSeenReviewFlow() = getBoolean(
+    MainActivity.PREF_KEY_REVIEW_FLOW,
+    MainActivity.PREF_REVIEW_FLOW_DEFAULT
+)
+

@@ -12,12 +12,14 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.developments.samu.muteforspotify.service.LoggerService
 import com.developments.samu.muteforspotify.utilities.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.play.core.review.ReviewManagerFactory
 import com.judemanutd.autostarter.AutoStartPermissionHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.delay
@@ -139,8 +141,25 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         }
         intent.removeExtra(LoggerService.NOTIFICATION_KEY)
 
-        val adsMuted = prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER, 0)
+        val adsMuted = prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER_SINCE_UPDATE, 0)
         tv_ad_counter.text = getString(R.string.mute_info_ad_counter, adsMuted)
+
+        if (!prefs.hasSeenReviewFlow() && adsMuted > REVIEW_FLOW_THRESHOLD) {
+            ReviewManagerFactory.create(this).run {
+                requestReviewFlow().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        launchReviewFlow(this@MainActivity, task.result).apply {
+                            addOnCompleteListener { _ ->
+                                prefs.edit(true) {
+                                    putBoolean(MainActivity.PREF_KEY_REVIEW_FLOW, true)
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
 
         if (!prefs.hasDbsEnabled() || prefs.getBoolean(
                 IS_FIRST_LAUNCH_KEY,
@@ -253,9 +272,12 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     companion object {
         const val IS_FIRST_LAUNCH_KEY = "first_launch"
         const val PREF_KEY_ADS_MUTED_COUNTER = "ads_muted_counter"
+        const val PREF_KEY_ADS_MUTED_COUNTER_SINCE_UPDATE = "ads_muted_counter_update"
         const val PREF_KEY_LAUNCH_SPOTIFY_DEFAULT = false
         const val PREF_KEY_USE_LOWEST_VOLUME = false
-
+        const val PREF_KEY_REVIEW_FLOW = "key_review_flow"
+        const val PREF_REVIEW_FLOW_DEFAULT = false
+        const val REVIEW_FLOW_THRESHOLD = 20
     }
 }
 
@@ -331,7 +353,11 @@ class BroadcastDialogFragment : DialogFragment() {
                 /*setNegativeButton(getString(R.string.dialog_broadcast_negative)) { _, _ ->
                     listener.onBroadcastDialogNegativeClick(this@BroadcastDialogFragment)
                 }*/
-                setPositiveButton(if (supportsOpeningSpotifySettingsDirectly) getString(R.string.dialog_broadcast_positive_settings) else getString(R.string.dialog_broadcast_positive)) { dialog, _ ->
+                setPositiveButton(
+                    if (supportsOpeningSpotifySettingsDirectly) getString(R.string.dialog_broadcast_positive_settings) else getString(
+                        R.string.dialog_broadcast_positive
+                    )
+                ) { dialog, _ ->
                     listener.onBroadcastDialogPositiveClick(this@BroadcastDialogFragment)
                 }
             }.create().also { dialog ->
