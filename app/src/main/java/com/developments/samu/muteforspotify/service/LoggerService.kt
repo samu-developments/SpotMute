@@ -51,7 +51,7 @@ class LoggerService : Service() {
                 flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
                 putExtra(NOTIFICATION_KEY, NOTIFICATION_ID)
             },
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 
@@ -63,7 +63,7 @@ class LoggerService : Service() {
             Intent(this, LoggerService::class.java).apply {
                 action = ACTION_STOP
             },
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 
@@ -85,7 +85,7 @@ class LoggerService : Service() {
             Intent(this, LoggerService::class.java).apply {
                 action = ACTION_MUTE
             },
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
     }
 
