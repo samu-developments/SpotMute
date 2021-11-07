@@ -65,7 +65,11 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
                 if (AutoStartPermissionHelper.getInstance()
                         .getAutoStartPermission(this, open = false)
                 ) {
-                    AutoStartPermissionHelper.getInstance().getAutoStartPermission(this)
+                    try {
+                        AutoStartPermissionHelper.getInstance().getAutoStartPermission(this)
+                    } catch (_: Exception) {
+                        startActivity(Intent(this, DokiThemedActivity::class.java))
+                    }
                 } else {
                     startActivity(Intent(this, DokiThemedActivity::class.java))
                 }
@@ -77,7 +81,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         // Intent.ACTION_APPLICATION_PREFERENCES added in api 24. On API < 24 it will just open Spotify.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) try {
             return startActivity(Spotify.INTENT_SPOTIFY_SETTINGS)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
         }
 
         packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
