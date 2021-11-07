@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
     override fun onBroadcastDialogPositiveClick(dialog: DialogFragment) {
         // Intent.ACTION_APPLICATION_PREFERENCES added in api 24. On API < 24 it will just open Spotify.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) try {
+        if (supportsOpeningSpotifySettingsDirectly) try {
             return startActivity(Spotify.INTENT_SPOTIFY_SETTINGS)
         } catch (_: Exception) {
         }
@@ -90,12 +90,14 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     }
 
     override fun onBroadcastDialogNegativeClick(dialog: DialogFragment) {
-        switch_mute.isChecked = true
+        /*switch_mute.isChecked = true*/
     }
 
     private fun showCompatibilityDialog() = when {
-        isPackageInstalled(packageManager, Spotify.PACKAGE_NAME) ->
+        isPackageInstalled(packageManager, Spotify.PACKAGE_NAME) -> {
+            startServiceAndSetToggle(setToggle = false)
             showDialog(BroadcastDialogFragment(), BroadcastDialogFragment.TAG)
+        }
         isPackageInstalled(packageManager, Spotify.PACKAGE_NAME_LITE) ->
             showDialog(SpotifyLiteDialogFragment(), SpotifyLiteDialogFragment.TAG)
         else -> showDialog(
@@ -107,6 +109,14 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     private fun showDialog(dialog: DialogFragment, tag: String) {
         if (supportFragmentManager.findFragmentByTag(tag) != null) return
         dialog.show(supportFragmentManager, tag)
+    }
+
+    private fun hideDialog(tag: String) {
+        supportFragmentManager.findFragmentByTag(tag)?.run {
+            if (this is DialogFragment) {
+                dismissAllowingStateLoss()
+            }
+        }
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -138,6 +148,11 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
             )
         ) showCompatibilityDialog() // first_launch for compatibility
         else startServiceAndSetToggle()
+    }
+
+    override fun onPause() {
+        hideDialog(BroadcastDialogFragment.TAG)
+        super.onPause()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -202,7 +217,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         )
     }
 
-    private fun startServiceAndSetToggle() {
+    private fun startServiceAndSetToggle(setToggle: Boolean = true) {
         lifecycleScope.launch {
             val enabledSuccessfully = startServiceSafe()
             if (!enabledSuccessfully) {
@@ -212,7 +227,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
                     Toast.LENGTH_LONG
                 ).show()
             }
-            updateUiFromToggleState(toggleOn = enabledSuccessfully)
+            if (setToggle) updateUiFromToggleState(toggleOn = enabledSuccessfully)
         }
     }
 
@@ -313,10 +328,10 @@ class BroadcastDialogFragment : DialogFragment() {
                         getString(R.string.settings_broadcast_status_title)
                     )
                 )
-                setNegativeButton(getString(R.string.dialog_broadcast_negative)) { _, _ ->
+                /*setNegativeButton(getString(R.string.dialog_broadcast_negative)) { _, _ ->
                     listener.onBroadcastDialogNegativeClick(this@BroadcastDialogFragment)
-                }
-                setPositiveButton(getString(R.string.dialog_broadcast_positive)) { dialog, _ ->
+                }*/
+                setPositiveButton(if (supportsOpeningSpotifySettingsDirectly) getString(R.string.dialog_broadcast_positive_settings) else getString(R.string.dialog_broadcast_positive)) { dialog, _ ->
                     listener.onBroadcastDialogPositiveClick(this@BroadcastDialogFragment)
                 }
             }.create().also { dialog ->

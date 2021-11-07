@@ -2,6 +2,7 @@ package com.developments.samu.muteforspotify.utilities
 
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.os.Build
 import com.developments.samu.muteforspotify.service.LoggerService
 import org.threeten.bp.Instant
 import org.threeten.bp.LocalDateTime
@@ -18,6 +19,8 @@ fun isPackageInstalled(packageManager: PackageManager, packageName: String): Boo
         false
     }
 }
+
+val supportsOpeningSpotifySettingsDirectly = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
 
 fun LocalDateTime.toReadableString(): String = this.format(
     DateTimeFormatter.ofLocalizedTime(

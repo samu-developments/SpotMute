@@ -29,6 +29,7 @@
     <string name="dialog_broadcast_title">Enable %1$s</string>
     <string name="dialog_broadcast_message">SpotMute needs \'%1$s\' enabled in
         Spotify to work. Go to Spotify settings and enable it. Note that this message will continue to show until SpotMute has been able to detect a song.</string>
+    <string name="dialog_broadcast_positive_settings">Open Spotify Settings</string>
     <string name="dialog_broadcast_positive">Open Spotify</string>
     <string name="dialog_broadcast_negative">I have enabled it!</string>
 
