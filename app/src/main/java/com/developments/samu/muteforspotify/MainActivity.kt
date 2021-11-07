@@ -22,6 +22,7 @@ import com.judemanutd.autostarter.AutoStartPermissionHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.Exception
 
 
 private const val TAG = "MainActivity"
@@ -61,7 +62,9 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         if (AutoStartPermissionHelper.getInstance().isAutoStartPermissionAvailable(this)) {
             tv_help_dkma.text = getString(R.string.open_autostarter)
             card_view_help.setOnClickListener {
-                if (AutoStartPermissionHelper.getInstance().getAutoStartPermission(this, open = false)) {
+                if (AutoStartPermissionHelper.getInstance()
+                        .getAutoStartPermission(this, open = false)
+                ) {
                     AutoStartPermissionHelper.getInstance().getAutoStartPermission(this)
                 } else {
                     startActivity(Intent(this, DokiThemedActivity::class.java))
@@ -72,11 +75,13 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
     override fun onBroadcastDialogPositiveClick(dialog: DialogFragment) {
         // Intent.ACTION_APPLICATION_PREFERENCES added in api 24. On API < 24 it will just open Spotify.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) startActivity(Spotify.INTENT_SPOTIFY_SETTINGS)
-        else {
-            packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
-                startActivity(it)
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) try {
+            return startActivity(Spotify.INTENT_SPOTIFY_SETTINGS)
+        } catch (e: Exception) {
+        }
+
+        packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
+            startActivity(it)
         }
     }
 
@@ -108,7 +113,11 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     override fun onResume() {
         super.onResume()
         intent.extras?.keySet()?.contains(LoggerService.NOTIFICATION_KEY) ?: kotlin.run {
-            if (prefs.getBoolean(getString(R.string.launch_spotify_key), PREF_KEY_LAUNCH_SPOTIFY_DEFAULT)) {
+            if (prefs.getBoolean(
+                    getString(R.string.launch_spotify_key),
+                    PREF_KEY_LAUNCH_SPOTIFY_DEFAULT
+                )
+            ) {
                 packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
                     startActivity(it)
                 }
@@ -119,7 +128,11 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         val adsMuted = prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER, 0)
         tv_ad_counter.text = getString(R.string.mute_info_ad_counter, adsMuted)
 
-        if (!prefs.hasDbsEnabled() || prefs.getBoolean(IS_FIRST_LAUNCH_KEY, false)) showCompatibilityDialog() // first_launch for compatibility
+        if (!prefs.hasDbsEnabled() || prefs.getBoolean(
+                IS_FIRST_LAUNCH_KEY,
+                false
+            )
+        ) showCompatibilityDialog() // first_launch for compatibility
         else startServiceAndSetToggle()
     }
 
@@ -189,7 +202,11 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         lifecycleScope.launch {
             val enabledSuccessfully = startServiceSafe()
             if (!enabledSuccessfully) {
-                Toast.makeText(this@MainActivity, getString(R.string.toast_service_could_not_start_error), Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this@MainActivity,
+                    getString(R.string.toast_service_could_not_start_error),
+                    Toast.LENGTH_LONG
+                ).show()
             }
             updateUiFromToggleState(toggleOn = enabledSuccessfully)
         }
@@ -223,7 +240,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     }
 }
 
-class SpotifyLiteDialogFragment: DialogFragment() {
+class SpotifyLiteDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             return MaterialAlertDialogBuilder(it).apply {
@@ -243,7 +260,7 @@ class SpotifyLiteDialogFragment: DialogFragment() {
     }
 }
 
-class SpotifyNotInstalledDialogFragment: DialogFragment() {
+class SpotifyNotInstalledDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             return MaterialAlertDialogBuilder(it).apply {
@@ -263,7 +280,7 @@ class SpotifyNotInstalledDialogFragment: DialogFragment() {
     }
 }
 
-class BroadcastDialogFragment: DialogFragment() {
+class BroadcastDialogFragment : DialogFragment() {
 
     private lateinit var listener: BroadcastDialogListener
 
@@ -280,8 +297,18 @@ class BroadcastDialogFragment: DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             return MaterialAlertDialogBuilder(it).apply {
-                setTitle(getString(R.string.dialog_broadcast_title, getString(R.string.settings_broadcast_status_title)))
-                setMessage(getString(R.string.dialog_broadcast_message, getString(R.string.settings_broadcast_status_title)))
+                setTitle(
+                    getString(
+                        R.string.dialog_broadcast_title,
+                        getString(R.string.settings_broadcast_status_title)
+                    )
+                )
+                setMessage(
+                    getString(
+                        R.string.dialog_broadcast_message,
+                        getString(R.string.settings_broadcast_status_title)
+                    )
+                )
                 setNegativeButton(getString(R.string.dialog_broadcast_negative)) { _, _ ->
                     listener.onBroadcastDialogNegativeClick(this@BroadcastDialogFragment)
                 }
