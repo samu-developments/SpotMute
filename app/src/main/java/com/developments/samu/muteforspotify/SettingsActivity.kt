@@ -1,15 +1,12 @@
 package com.developments.samu.muteforspotify
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
 import android.text.InputType.TYPE_NUMBER_FLAG_SIGNED
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.EditTextPreference
 import androidx.preference.PreferenceFragmentCompat
-import com.developments.samu.muteforspotify.service.LoggerService
 
 class SettingsActivity : AppCompatActivity() {
 

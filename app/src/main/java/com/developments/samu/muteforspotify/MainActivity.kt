@@ -15,17 +15,24 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
+import com.developments.samu.muteforspotify.databinding.ActivityMainBinding
 import com.developments.samu.muteforspotify.service.LoggerService
-import com.developments.samu.muteforspotify.utilities.*
+import com.developments.samu.muteforspotify.utilities.AppUtil
+import com.developments.samu.muteforspotify.utilities.Spotify
+import com.developments.samu.muteforspotify.utilities.hasDbsEnabled
+import com.developments.samu.muteforspotify.utilities.isPackageInstalled
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.judemanutd.autostarter.AutoStartPermissionHelper
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 private const val TAG = "MainActivity"
 
 
 class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialogListener {
+    private lateinit var binding: ActivityMainBinding
+
     private val loggerServiceIntentForeground by lazy {
         Intent(
             LoggerService.ACTION_START_FOREGROUND,
@@ -38,27 +45,28 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        switch_mute.setOnCheckedChangeListener { _, isChecked ->
+        binding.switchMute.setOnCheckedChangeListener { _, isChecked ->
             handleToggleClicked(on = isChecked)
         }
-        card_view_status.setOnClickListener {
-            switch_mute.toggle()
+        binding.cardViewStatus.setOnClickListener {
+            binding.switchMute.toggle()
         }
 
-        card_view_counter.setOnClickListener {
+        binding.cardViewCounter.setOnClickListener {
             Toast.makeText(this, getString(R.string.toast_counter), Toast.LENGTH_LONG).show()
         }
 
-        card_view_help.setOnClickListener {
+        binding.cardViewHelp.setOnClickListener {
             startActivity(Intent(this, DokiThemedActivity::class.java))
         }
-        tv_help_dkma.text = getString(R.string.mute_info_dkma, Build.MANUFACTURER)
+        binding.tvHelpDkma.text = getString(R.string.mute_info_dkma, Build.MANUFACTURER)
 
         if (AutoStartPermissionHelper.getInstance().isAutoStartPermissionAvailable(this)) {
-            tv_help_dkma.text = getString(R.string.open_autostarter)
-            card_view_help.setOnClickListener {
+            binding.tvHelpDkma.text = getString(R.string.open_autostarter)
+            binding.cardViewHelp.setOnClickListener {
                 if (AutoStartPermissionHelper.getInstance().getAutoStartPermission(this, open = false)) {
                     AutoStartPermissionHelper.getInstance().getAutoStartPermission(this)
                 } else {
@@ -79,7 +87,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     }
 
     override fun onBroadcastDialogNegativeClick(dialog: DialogFragment) {
-        switch_mute.isChecked = true
+        binding.switchMute.isChecked = true
     }
 
     private fun showCompatibilityDialog() = when {
@@ -115,7 +123,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         intent.removeExtra(LoggerService.NOTIFICATION_KEY)
 
         val adsMuted = prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER, 0)
-        tv_ad_counter.text = getString(R.string.mute_info_ad_counter, adsMuted)
+        binding.tvAdCounter.text = getString(R.string.mute_info_ad_counter, adsMuted)
 
         if (!prefs.hasDbsEnabled() || prefs.getBoolean(IS_FIRST_LAUNCH_KEY, false)) showCompatibilityDialog() // first_launch for compatibility
         else startServiceAndSetToggle()
@@ -167,14 +175,14 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
     // subject to this: https://issuetracker.google.com/issues/113122354
     private fun updateUiFromToggleState(toggleOn: Boolean) {
-        switch_mute.isChecked = toggleOn
+        binding.switchMute.isChecked = toggleOn
 
-        tv_status.text = getString(
+        binding.tvStatus.text = getString(
             if (toggleOn) R.string.status_enabled
             else R.string.status_disabled
         )
 
-        card_view_status.setCardBackgroundColor(
+        binding.cardViewStatus.setCardBackgroundColor(
             ContextCompat.getColor(
                 this,
                 if (toggleOn) R.color.colorOk

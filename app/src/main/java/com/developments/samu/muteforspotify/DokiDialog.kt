@@ -8,7 +8,7 @@ import dev.doubledot.doki.views.DokiContentView
 class DokiThemedActivity : AppCompatActivity() {
 
     private val dokiContent: DokiContentView? by lazy {
-        findViewById<DokiContentView?>(R.id.doki_content)
+        findViewById(R.id.doki_content)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
