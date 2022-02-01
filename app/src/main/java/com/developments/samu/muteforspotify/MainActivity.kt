@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.edit
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
@@ -21,10 +22,14 @@ import com.developments.samu.muteforspotify.utilities.AppUtil
 import com.developments.samu.muteforspotify.utilities.Spotify
 import com.developments.samu.muteforspotify.utilities.hasDbsEnabled
 import com.developments.samu.muteforspotify.utilities.isPackageInstalled
+import com.developments.samu.muteforspotify.utilities.supportsOpeningSpotifySettingsDirectly
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.play.core.review.ReviewManagerFactory
 import com.judemanutd.autostarter.AutoStartPermissionHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.Exception
+import java.lang.Exception
 
 
 private const val TAG = "MainActivity"
@@ -67,8 +72,14 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         if (AutoStartPermissionHelper.getInstance().isAutoStartPermissionAvailable(this)) {
             binding.tvHelpDkma.text = getString(R.string.open_autostarter)
             binding.cardViewHelp.setOnClickListener {
-                if (AutoStartPermissionHelper.getInstance().getAutoStartPermission(this, open = false)) {
-                    AutoStartPermissionHelper.getInstance().getAutoStartPermission(this)
+                if (AutoStartPermissionHelper.getInstance()
+                        .getAutoStartPermission(this, open = false)
+                ) {
+                    try {
+                        AutoStartPermissionHelper.getInstance().getAutoStartPermission(this)
+                    } catch (_: Exception) {
+                        startActivity(Intent(this, DokiThemedActivity::class.java))
+                    }
                 } else {
                     startActivity(Intent(this, DokiThemedActivity::class.java))
                 }
@@ -78,21 +89,25 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
     override fun onBroadcastDialogPositiveClick(dialog: DialogFragment) {
         // Intent.ACTION_APPLICATION_PREFERENCES added in api 24. On API < 24 it will just open Spotify.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) startActivity(Spotify.INTENT_SPOTIFY_SETTINGS)
-        else {
-            packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
-                startActivity(it)
-            }
+        if (supportsOpeningSpotifySettingsDirectly) try {
+            return startActivity(Spotify.INTENT_SPOTIFY_SETTINGS)
+        } catch (_: Exception) {
+        }
+
+        packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
+            startActivity(it)
         }
     }
 
     override fun onBroadcastDialogNegativeClick(dialog: DialogFragment) {
-        binding.switchMute.isChecked = true
+        /*switch_mute.isChecked = true*/
     }
 
     private fun showCompatibilityDialog() = when {
-        isPackageInstalled(packageManager, Spotify.PACKAGE_NAME) ->
+        isPackageInstalled(packageManager, Spotify.PACKAGE_NAME) -> {
+            startServiceAndSetToggle(setToggle = false)
             showDialog(BroadcastDialogFragment(), BroadcastDialogFragment.TAG)
+        }
         isPackageInstalled(packageManager, Spotify.PACKAGE_NAME_LITE) ->
             showDialog(SpotifyLiteDialogFragment(), SpotifyLiteDialogFragment.TAG)
         else -> showDialog(
@@ -106,6 +121,14 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         dialog.show(supportFragmentManager, tag)
     }
 
+    private fun hideDialog(tag: String) {
+        supportFragmentManager.findFragmentByTag(tag)?.run {
+            if (this is DialogFragment) {
+                dismissAllowingStateLoss()
+            }
+        }
+    }
+
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         setIntent(intent)
@@ -114,7 +137,11 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     override fun onResume() {
         super.onResume()
         intent.extras?.keySet()?.contains(LoggerService.NOTIFICATION_KEY) ?: kotlin.run {
-            if (prefs.getBoolean(getString(R.string.launch_spotify_key), PREF_KEY_LAUNCH_SPOTIFY_DEFAULT)) {
+            if (prefs.getBoolean(
+                    getString(R.string.launch_spotify_key),
+                    PREF_KEY_LAUNCH_SPOTIFY_DEFAULT
+                )
+            ) {
                 packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
                     startActivity(it)
                 }
@@ -122,11 +149,37 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         }
         intent.removeExtra(LoggerService.NOTIFICATION_KEY)
 
-        val adsMuted = prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER, 0)
+        val adsMuted = prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER_SINCE_UPDATE, 0)
         binding.tvAdCounter.text = getString(R.string.mute_info_ad_counter, adsMuted)
 
-        if (!prefs.hasDbsEnabled() || prefs.getBoolean(IS_FIRST_LAUNCH_KEY, false)) showCompatibilityDialog() // first_launch for compatibility
+        if (!prefs.hasSeenReviewFlow() && adsMuted > REVIEW_FLOW_THRESHOLD) {
+            ReviewManagerFactory.create(this).run {
+                requestReviewFlow().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        launchReviewFlow(this@MainActivity, task.result).apply {
+                            addOnCompleteListener { _ ->
+                                prefs.edit(true) {
+                                    putBoolean(MainActivity.PREF_KEY_REVIEW_FLOW, true)
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+
+        if (!prefs.hasDbsEnabled() || prefs.getBoolean(
+                IS_FIRST_LAUNCH_KEY,
+                false
+            )
+        ) showCompatibilityDialog() // first_launch for compatibility
         else startServiceAndSetToggle()
+    }
+
+    override fun onPause() {
+        hideDialog(BroadcastDialogFragment.TAG)
+        super.onPause()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -191,13 +244,17 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         )
     }
 
-    private fun startServiceAndSetToggle() {
+    private fun startServiceAndSetToggle(setToggle: Boolean = true) {
         lifecycleScope.launch {
             val enabledSuccessfully = startServiceSafe()
             if (!enabledSuccessfully) {
-                Toast.makeText(this@MainActivity, getString(R.string.toast_service_could_not_start_error), Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this@MainActivity,
+                    getString(R.string.toast_service_could_not_start_error),
+                    Toast.LENGTH_LONG
+                ).show()
             }
-            updateUiFromToggleState(toggleOn = enabledSuccessfully)
+            if (setToggle) updateUiFromToggleState(toggleOn = enabledSuccessfully)
         }
     }
 
@@ -223,13 +280,16 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     companion object {
         const val IS_FIRST_LAUNCH_KEY = "first_launch"
         const val PREF_KEY_ADS_MUTED_COUNTER = "ads_muted_counter"
+        const val PREF_KEY_ADS_MUTED_COUNTER_SINCE_UPDATE = "ads_muted_counter_update"
         const val PREF_KEY_LAUNCH_SPOTIFY_DEFAULT = false
         const val PREF_KEY_USE_LOWEST_VOLUME = false
-
+        const val PREF_KEY_REVIEW_FLOW = "key_review_flow"
+        const val PREF_REVIEW_FLOW_DEFAULT = false
+        const val REVIEW_FLOW_THRESHOLD = 20
     }
 }
 
-class SpotifyLiteDialogFragment: DialogFragment() {
+class SpotifyLiteDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             return MaterialAlertDialogBuilder(it).apply {
@@ -249,7 +309,7 @@ class SpotifyLiteDialogFragment: DialogFragment() {
     }
 }
 
-class SpotifyNotInstalledDialogFragment: DialogFragment() {
+class SpotifyNotInstalledDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             return MaterialAlertDialogBuilder(it).apply {
@@ -269,7 +329,7 @@ class SpotifyNotInstalledDialogFragment: DialogFragment() {
     }
 }
 
-class BroadcastDialogFragment: DialogFragment() {
+class BroadcastDialogFragment : DialogFragment() {
 
     private lateinit var listener: BroadcastDialogListener
 
@@ -286,12 +346,26 @@ class BroadcastDialogFragment: DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             return MaterialAlertDialogBuilder(it).apply {
-                setTitle(getString(R.string.dialog_broadcast_title, getString(R.string.settings_broadcast_status_title)))
-                setMessage(getString(R.string.dialog_broadcast_message, getString(R.string.settings_broadcast_status_title)))
-                setNegativeButton(getString(R.string.dialog_broadcast_negative)) { _, _ ->
+                setTitle(
+                    getString(
+                        R.string.dialog_broadcast_title,
+                        getString(R.string.settings_broadcast_status_title)
+                    )
+                )
+                setMessage(
+                    getString(
+                        R.string.dialog_broadcast_message,
+                        getString(R.string.settings_broadcast_status_title)
+                    )
+                )
+                /*setNegativeButton(getString(R.string.dialog_broadcast_negative)) { _, _ ->
                     listener.onBroadcastDialogNegativeClick(this@BroadcastDialogFragment)
-                }
-                setPositiveButton(getString(R.string.dialog_broadcast_positive)) { dialog, _ ->
+                }*/
+                setPositiveButton(
+                    if (supportsOpeningSpotifySettingsDirectly) getString(R.string.dialog_broadcast_positive_settings) else getString(
+                        R.string.dialog_broadcast_positive
+                    )
+                ) { dialog, _ ->
                     listener.onBroadcastDialogPositiveClick(this@BroadcastDialogFragment)
                 }
             }.create().also { dialog ->

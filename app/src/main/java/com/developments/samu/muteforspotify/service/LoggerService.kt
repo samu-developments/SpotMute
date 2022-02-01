@@ -14,6 +14,7 @@ import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import com.developments.samu.muteforspotify.MainActivity
 import com.developments.samu.muteforspotify.MainActivity.Companion.PREF_KEY_ADS_MUTED_COUNTER
+import com.developments.samu.muteforspotify.MainActivity.Companion.PREF_KEY_ADS_MUTED_COUNTER_SINCE_UPDATE
 import com.developments.samu.muteforspotify.MuteWidget
 import com.developments.samu.muteforspotify.R
 import com.developments.samu.muteforspotify.data.Song
@@ -289,6 +290,7 @@ class LoggerService : Service() {
         adsMutedCounter++
         prefs.edit(true) {
             putInt(PREF_KEY_ADS_MUTED_COUNTER, prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER, 0) + 1)
+            putInt(PREF_KEY_ADS_MUTED_COUNTER_SINCE_UPDATE, prefs.getInt(PREF_KEY_ADS_MUTED_COUNTER_SINCE_UPDATE, 0) + 1)
         }
     }
 
