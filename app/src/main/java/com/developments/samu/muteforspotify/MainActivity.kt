@@ -19,9 +19,7 @@ import com.developments.samu.muteforspotify.service.LoggerService
 import com.developments.samu.muteforspotify.utilities.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.judemanutd.autostarter.AutoStartPermissionHelper
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 private const val TAG = "MainActivity"
