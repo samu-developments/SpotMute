@@ -27,9 +27,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-private const val TAG = "MainActivity"
-
-
 class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialogListener {
     private lateinit var binding: ActivityMainBinding
 
@@ -354,9 +351,6 @@ class BroadcastDialogFragment : DialogFragment() {
                         getString(R.string.settings_broadcast_status_title)
                     )
                 )
-                /*setNegativeButton(getString(R.string.dialog_broadcast_negative)) { _, _ ->
-                    listener.onBroadcastDialogNegativeClick(this@BroadcastDialogFragment)
-                }*/
                 setPositiveButton(
                     if (supportsOpeningSpotifySettingsDirectly) getString(R.string.dialog_broadcast_positive_settings) else getString(
                         R.string.dialog_broadcast_positive

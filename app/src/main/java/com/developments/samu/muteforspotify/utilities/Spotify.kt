@@ -17,17 +17,15 @@ class Spotify {
         const val PACKAGE_NAME_LITE = "com.spotify.lite"
 
         const val PLAYBACK_STATE_CHANGED = "com.spotify.music.playbackstatechanged"
-        const val METADATA_CHANGED = "com.spotify.music.metadatachanged"
+        // const val METADATA_CHANGED = "com.spotify.music.metadatachanged"
         val INTENT_FILTER = IntentFilter().apply {
             addAction(PLAYBACK_STATE_CHANGED)
-            //addAction(METADATA_CHANGED)
         }
 
         val INTENT_SPOTIFY_SETTINGS = Intent("android.intent.action.APPLICATION_PREFERENCES").apply {
             this.`package` = PACKAGE_NAME
         }
 
-        // returns a broadcastreceiver with implemented callback
         fun spotifyReceiver(callback: ((Song) -> Unit)): BroadcastReceiver =
             object : BroadcastReceiver() {
                 override fun onReceive(context: Context?, intent: Intent?) {

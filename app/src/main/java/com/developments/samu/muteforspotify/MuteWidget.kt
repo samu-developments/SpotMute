@@ -64,7 +64,7 @@ class MuteWidget : AppWidgetProvider() {
                 // widgetManager.updateAppWidget(widgetId, views) seems to not work for updating f.ex images
                 //putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, IntArray(widgetId))
             }
-            val pendingIntent = PendingIntent.getBroadcast(context, widgetId, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            val pendingIntent = PendingIntent.getBroadcast(context, widgetId, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
             val views = RemoteViews(context.packageName, R.layout.widget_mute).apply {
                 setImageViewResource(R.id.btn_img_widget, getImageResource(muteIcon = LoggerService.isServiceRunning()))
