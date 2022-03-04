@@ -8,8 +8,8 @@ android {
         applicationId "com.developments.samu.muteforspotify"
         minSdkVersion 23
         targetSdkVersion 31
-        versionCode 39
-        versionName "1.2.5"
+        versionCode 40
+        versionName "2.0.0"
     }
     kotlinOptions {
         jvmTarget = '1.8'
