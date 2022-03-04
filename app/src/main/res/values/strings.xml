@@ -5,7 +5,7 @@
     <string name="mute_info_background">Allow SpotMute to run in the background!</string>
     <string name="mute_info_dkma">Click to see %1s\'s background process rating and prevention steps from dontkillmyapp.com</string>
     <string name="mute_info_skip_startup">Ads playing after you skip a track or ads on Spotify startup cannot be muted.</string>
-    <string name="mute_info_not_updating">If the \'Last song\' in the notification is not updated, it is a sign that SpotMute has been killed by your system!</string>
+    <string name="mute_info_not_updating">If you don\'t disable ALL battery optimizations (there might be others), SpotMute will eventually be killed by your system and can\'t mute your phone!</string>
 
 
     <string name="ads_muted">Ads muted</string>
@@ -74,6 +74,6 @@
     <string name="toast_service_could_not_start_error">Could not start service, please try again!</string>
 
     <string name="settings_broadcast_status_title">Device Broadcast Status</string>
-    <string name="open_autostarter">Click to open the battery optimization settings page, and allow SpotMute to run in the background.</string>
+    <string name="open_battery_optimization">Click to open the battery optimization settings page, and allow SpotMute to run in the background.</string>
 
 </resources>

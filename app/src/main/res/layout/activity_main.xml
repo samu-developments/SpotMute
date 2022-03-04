@@ -144,42 +144,39 @@
                 tools:text="@string/mute_info_background" />
 
             <TextView
-                android:id="@+id/tv_help_dkma"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="4dp"
-                android:text="@string/mute_info_dkma"
-                style="@style/TextAppearance.AppCompat.Body1"
-                android:textAlignment="center"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_help_background"
-                tools:text="@string/mute_info_dkma" />
-
-            <TextView
                 android:id="@+id/tv_help_notification"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginHorizontal="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="4dp"
                 android:text="@string/mute_info_not_updating"
                 style="@style/TextAppearance.AppCompat.Body1"
                 android:textAlignment="center"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_help_dkma"
+                app:layout_constraintTop_toBottomOf="@+id/tv_help_background"
                 tools:text="@string/mute_info_not_updating" />
+
+            <TextView
+                android:id="@+id/tv_help_dkma"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/mute_info_dkma"
+                style="@style/TextAppearance.AppCompat.Body1"
+                android:textAlignment="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tv_help_notification"
+                tools:text="@string/mute_info_dkma" />
 
             <TextView
                 android:id="@+id/tv_help_skip_startup"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginHorizontal="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="4dp"
                 android:layout_marginBottom="8dp"
                 android:text="@string/mute_info_skip_startup"
                 style="@style/TextAppearance.AppCompat.Body1"
@@ -187,7 +184,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_help_notification"
+                app:layout_constraintTop_toBottomOf="@+id/tv_help_dkma"
                 tools:text="Ads playing after you skip a track or ads on Spotify startup cannot be muted." />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

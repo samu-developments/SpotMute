@@ -7,6 +7,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -18,18 +20,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.developments.samu.muteforspotify.databinding.ActivityMainBinding
 import com.developments.samu.muteforspotify.service.LoggerService
-import com.developments.samu.muteforspotify.utilities.AppUtil
-import com.developments.samu.muteforspotify.utilities.Spotify
-import com.developments.samu.muteforspotify.utilities.hasDbsEnabled
-import com.developments.samu.muteforspotify.utilities.isPackageInstalled
-import com.developments.samu.muteforspotify.utilities.supportsOpeningSpotifySettingsDirectly
+import com.developments.samu.muteforspotify.utilities.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.play.core.review.ReviewManagerFactory
-import com.judemanutd.autostarter.AutoStartPermissionHelper
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.lang.Exception
-import java.lang.Exception
 
 
 private const val TAG = "MainActivity"
@@ -64,25 +59,28 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
             Toast.makeText(this, getString(R.string.toast_counter), Toast.LENGTH_LONG).show()
         }
 
-        binding.cardViewHelp.setOnClickListener {
-            startActivity(Intent(this, DokiThemedActivity::class.java))
-        }
-        binding.tvHelpDkma.text = getString(R.string.mute_info_dkma, Build.MANUFACTURER)
+        updateBatteryTile()
+    }
 
-        if (AutoStartPermissionHelper.getInstance().isAutoStartPermissionAvailable(this)) {
-            binding.tvHelpDkma.text = getString(R.string.open_autostarter)
+    private fun openBatteryOptimizationPage() {
+        Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+            data = Uri.parse("package:$packageName")
+        }.run { startActivity(this) }
+
+        updateBatteryTile()
+    }
+
+    private fun updateBatteryTile() {
+        val pm = this.getSystemService(POWER_SERVICE) as PowerManager
+        if (pm.isIgnoringBatteryOptimizations(packageName)) {
+            binding.tvHelpDkma.text = getString(R.string.mute_info_dkma, Build.MANUFACTURER.replaceFirstChar { it.titlecase() })
             binding.cardViewHelp.setOnClickListener {
-                if (AutoStartPermissionHelper.getInstance()
-                        .getAutoStartPermission(this, open = false)
-                ) {
-                    try {
-                        AutoStartPermissionHelper.getInstance().getAutoStartPermission(this)
-                    } catch (_: Exception) {
-                        startActivity(Intent(this, DokiThemedActivity::class.java))
-                    }
-                } else {
-                    startActivity(Intent(this, DokiThemedActivity::class.java))
-                }
+                startActivity(Intent(this, DokiThemedActivity::class.java))
+            }
+        } else {
+            binding.tvHelpDkma.text = getString(R.string.open_battery_optimization)
+            binding.cardViewHelp.setOnClickListener {
+                openBatteryOptimizationPage()
             }
         }
     }
@@ -159,7 +157,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
                         launchReviewFlow(this@MainActivity, task.result).apply {
                             addOnCompleteListener { _ ->
                                 prefs.edit(true) {
-                                    putBoolean(MainActivity.PREF_KEY_REVIEW_FLOW, true)
+                                    putBoolean(PREF_KEY_REVIEW_FLOW, true)
                                 }
                             }
                         }
@@ -207,8 +205,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_settings -> {
-                val myIntent = Intent(this, SettingsActivity::class.java)
-                startActivity(myIntent)
+                startActivity(Intent(this, DokiThemedActivity::class.java))
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -282,7 +279,6 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         const val PREF_KEY_ADS_MUTED_COUNTER = "ads_muted_counter"
         const val PREF_KEY_ADS_MUTED_COUNTER_SINCE_UPDATE = "ads_muted_counter_update"
         const val PREF_KEY_LAUNCH_SPOTIFY_DEFAULT = false
-        const val PREF_KEY_USE_LOWEST_VOLUME = false
         const val PREF_KEY_REVIEW_FLOW = "key_review_flow"
         const val PREF_REVIEW_FLOW_DEFAULT = false
         const val REVIEW_FLOW_THRESHOLD = 20

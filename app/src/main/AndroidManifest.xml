@@ -4,6 +4,7 @@
     package="com.developments.samu.muteforspotify">
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 
     <queries>
         <package android:name="com.spotify.music" />
