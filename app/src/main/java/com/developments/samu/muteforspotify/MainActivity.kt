@@ -56,29 +56,9 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
             Toast.makeText(this, getString(R.string.toast_counter), Toast.LENGTH_LONG).show()
         }
 
-        updateBatteryTile()
-    }
-
-    private fun openBatteryOptimizationPage() {
-        Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-            data = Uri.parse("package:$packageName")
-        }.run { startActivity(this) }
-
-        updateBatteryTile()
-    }
-
-    private fun updateBatteryTile() {
-        val pm = this.getSystemService(POWER_SERVICE) as PowerManager
-        if (pm.isIgnoringBatteryOptimizations(packageName)) {
-            binding.tvHelpDkma.text = getString(R.string.mute_info_dkma, Build.MANUFACTURER.replaceFirstChar { it.titlecase() })
-            binding.cardViewHelp.setOnClickListener {
-                startActivity(Intent(this, DokiThemedActivity::class.java))
-            }
-        } else {
-            binding.tvHelpDkma.text = getString(R.string.open_battery_optimization)
-            binding.cardViewHelp.setOnClickListener {
-                openBatteryOptimizationPage()
-            }
+        binding.tvHelpDkma.text = getString(R.string.mute_info_dkma, Build.MANUFACTURER.replaceFirstChar { it.titlecase() })
+        binding.cardViewHelp.setOnClickListener {
+            startActivity(Intent(this, DokiThemedActivity::class.java))
         }
     }
 
