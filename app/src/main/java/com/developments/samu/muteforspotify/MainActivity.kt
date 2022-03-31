@@ -182,7 +182,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_settings -> {
-                startActivity(Intent(this, DokiThemedActivity::class.java))
+                startActivity(Intent(this, SettingsActivity::class.java))
                 true
             }
             else -> super.onOptionsItemSelected(item)
