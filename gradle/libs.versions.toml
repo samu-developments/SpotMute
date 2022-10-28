@@ -1,0 +1,22 @@
+[versions]
+kotlin = "1.7.20"
+gradle = "7.3.1"
+
+[plugins]
+
+[libraries]
+kotlin-stdlib-jdk7 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk7", version.ref = "kotlin" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version = "1.5.1" }
+androidx-core-ktx = { module = "androidx.core:core-ctx", version = "1.9.0" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.1.4" }
+androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version = "1.2.0" }
+androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version = "2.5.1" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version = "2.5.1" }
+google-android-material = { module = "com.google.android.material:material", version = "1.7.0" }
+google-android-play-core-ktx = { module = "com.google.android.play:core-ktx", version = "1.8.1" }
+jetbrains-kotlinx-couroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.6.4" }
+doubledot-doki = { module = "dev.doubledot.doki:library", version = "0.0.1" }
+threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version = "1.4.2" }
+
+android-build-tools-gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
+gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
