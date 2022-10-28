@@ -33,6 +33,10 @@ android {
             outputFileName = "${variant.name}-${variant.versionName}.apk"
         }
     }
+
+    lintOptions{
+        disable 'MissingTranslation'
+    }
 }
 
 dependencies {
@@ -44,9 +48,12 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation "androidx.lifecycle:lifecycle-viewmodel:2.5.1"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1"
+
     implementation('dev.doubledot.doki:library:0.0.1@aar') {
         transitive = true
     }
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.4.0'
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.4.2'
     implementation 'com.google.android.play:core-ktx:1.8.1'
 }
