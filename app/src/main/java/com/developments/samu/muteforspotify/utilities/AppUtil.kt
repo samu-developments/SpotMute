@@ -25,7 +25,9 @@ val supportsOpeningSpotifySettingsDirectly = Build.VERSION.SDK_INT >= Build.VERS
 
 fun LocalDateTime.toReadableString(): String = this.format(
     DateTimeFormatter.ofLocalizedTime(
-        FormatStyle.MEDIUM))
+        FormatStyle.MEDIUM
+    )
+)
 
 fun Long.toLocalDateTime(): LocalDateTime =
     LocalDateTime.ofInstant(Instant.ofEpochMilli(this), ZoneId.systemDefault())
@@ -46,4 +48,3 @@ fun SharedPreferences.hasSeenReviewFlow() = getBoolean(
     MainActivity.PREF_KEY_REVIEW_FLOW,
     MainActivity.PREF_REVIEW_FLOW_DEFAULT
 )
-

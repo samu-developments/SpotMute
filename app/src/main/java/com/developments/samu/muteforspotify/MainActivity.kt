@@ -7,8 +7,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.PowerManager
-import android.provider.Settings
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -20,12 +18,16 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
 import com.developments.samu.muteforspotify.databinding.ActivityMainBinding
 import com.developments.samu.muteforspotify.service.LoggerService
-import com.developments.samu.muteforspotify.utilities.*
+import com.developments.samu.muteforspotify.utilities.AppUtil
+import com.developments.samu.muteforspotify.utilities.Spotify
+import com.developments.samu.muteforspotify.utilities.hasDbsEnabled
+import com.developments.samu.muteforspotify.utilities.hasSeenReviewFlow
+import com.developments.samu.muteforspotify.utilities.isPackageInstalled
+import com.developments.samu.muteforspotify.utilities.supportsOpeningSpotifySettingsDirectly
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.play.core.review.ReviewManagerFactory
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-
 
 class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialogListener {
     private lateinit var binding: ActivityMainBinding
@@ -58,15 +60,17 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
 
         binding.tvHelpDkma.text = getString(R.string.mute_info_dkma, Build.MANUFACTURER.replaceFirstChar { it.titlecase() })
         binding.cardViewHelp.setOnClickListener {
-            startActivity(Intent(this, DokiThemedActivity::class.java))
+            startActivity(Intent(this, DokiActivity::class.java))
         }
     }
 
     override fun onBroadcastDialogPositiveClick(dialog: DialogFragment) {
         // Intent.ACTION_APPLICATION_PREFERENCES added in api 24. On API < 24 it will just open Spotify.
-        if (supportsOpeningSpotifySettingsDirectly) try {
-            return startActivity(Spotify.INTENT_SPOTIFY_SETTINGS)
-        } catch (_: Exception) {
+        if (supportsOpeningSpotifySettingsDirectly) {
+            try {
+                return startActivity(Spotify.INTENT_SPOTIFY_SETTINGS)
+            } catch (_: Exception) {
+            }
         }
 
         packageManager.getLaunchIntentForPackage(Spotify.PACKAGE_NAME)?.let {
@@ -139,7 +143,6 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
                             }
                         }
                     }
-
                 }
             }
         }
@@ -148,8 +151,11 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
                 IS_FIRST_LAUNCH_KEY,
                 false
             )
-        ) showCompatibilityDialog() // first_launch for compatibility
-        else startServiceAndSetToggle()
+        ) {
+            showCompatibilityDialog() // first_launch for compatibility
+        } else {
+            startServiceAndSetToggle()
+        }
     }
 
     override fun onPause() {
@@ -205,15 +211,21 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
         binding.switchMute.isChecked = toggleOn
 
         binding.tvStatus.text = getString(
-            if (toggleOn) R.string.status_enabled
-            else R.string.status_disabled
+            if (toggleOn) {
+                R.string.status_enabled
+            } else {
+                R.string.status_disabled
+            }
         )
 
         binding.cardViewStatus.setCardBackgroundColor(
             ContextCompat.getColor(
                 this,
-                if (toggleOn) R.color.colorOk
-                else R.color.colorWarning
+                if (toggleOn) {
+                    R.color.colorOk
+                } else {
+                    R.color.colorWarning
+                }
             )
         )
     }
@@ -242,7 +254,7 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
             true
         } else {
             try {
-                delay(1000)  // hopefully wait for application to run in foreground
+                delay(1000) // hopefully wait for application to run in foreground
                 applicationContext.startService(loggerServiceIntentForeground)
                 true
             } catch (_: IllegalStateException) {
@@ -313,7 +325,7 @@ class BroadcastDialogFragment : DialogFragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        listener = context as BroadcastDialogListener  // register listener
+        listener = context as BroadcastDialogListener // register listener
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -332,9 +344,13 @@ class BroadcastDialogFragment : DialogFragment() {
                     )
                 )
                 setPositiveButton(
-                    if (supportsOpeningSpotifySettingsDirectly) getString(R.string.dialog_broadcast_positive_settings) else getString(
-                        R.string.dialog_broadcast_positive
-                    )
+                    if (supportsOpeningSpotifySettingsDirectly) {
+                        getString(R.string.dialog_broadcast_positive_settings)
+                    } else {
+                        getString(
+                            R.string.dialog_broadcast_positive
+                        )
+                    }
                 ) { dialog, _ ->
                     listener.onBroadcastDialogPositiveClick(this@BroadcastDialogFragment)
                 }
@@ -348,8 +364,3 @@ class BroadcastDialogFragment : DialogFragment() {
         const val TAG = "broadcast_tag"
     }
 }
-
-
-
-
-

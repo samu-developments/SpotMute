@@ -33,7 +33,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DokiThemedActivity"
+            android:name=".DokiActivity"
             android:theme="@style/DokiTheme" />
 
         <service

@@ -21,7 +21,7 @@ class MuteWidget : AppWidgetProvider() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         when (intent?.action) {
-            ON_UPDATE_WIDGET -> updateMuteWidget(context, intent)  // called from loggerService to update widget ui
+            ON_UPDATE_WIDGET -> updateMuteWidget(context, intent) // called from loggerService to update widget ui
             ON_CLICK_BTN -> updateMuteWidget(context, intent, toggleService = true)
             else -> super.onReceive(context, intent)
         }
@@ -43,12 +43,14 @@ class MuteWidget : AppWidgetProvider() {
     }
 
     private fun toggleMuteService(context: Context) {
-
         val loggerServiceIntentForeground =
             Intent(LoggerService.ACTION_START_FOREGROUND, Uri.EMPTY, context, LoggerService::class.java)
 
-        if (LoggerService.isServiceRunning()) context.stopService(loggerServiceIntentForeground)
-        else ContextCompat.startForegroundService(context, loggerServiceIntentForeground)  // Sdk 26 >= can't start service unconditionally
+        if (LoggerService.isServiceRunning()) {
+            context.stopService(loggerServiceIntentForeground)
+        } else {
+            ContextCompat.startForegroundService(context, loggerServiceIntentForeground) // Sdk 26 >= can't start service unconditionally
+        }
     }
 
     companion object {
@@ -57,12 +59,11 @@ class MuteWidget : AppWidgetProvider() {
         const val ON_CLICK_BTN = "on_btn_click"
 
         fun updateAppWidget(context: Context, widgetManager: AppWidgetManager, widgetId: Int) {
-
             val intent = Intent(context, MuteWidget::class.java).apply {
                 action = ON_CLICK_BTN
                 // not used for now. no need to update individual widgets.
                 // widgetManager.updateAppWidget(widgetId, views) seems to not work for updating f.ex images
-                //putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, IntArray(widgetId))
+                // putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, IntArray(widgetId))
             }
             val pendingIntent = PendingIntent.getBroadcast(context, widgetId, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
@@ -76,7 +77,10 @@ class MuteWidget : AppWidgetProvider() {
         }
 
         fun getImageResource(muteIcon: Boolean) =
-            if (muteIcon) R.drawable.ic_tile_volume_off_widget
-            else R.drawable.ic_tile_volume_on_widget
+            if (muteIcon) {
+                R.drawable.ic_tile_volume_off_widget
+            } else {
+                R.drawable.ic_tile_volume_on_widget
+            }
     }
 }

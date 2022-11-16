@@ -1,5 +1,6 @@
 plugins {
     `version-catalog`
+    alias(libs.plugins.spotless)
 }
 
 buildscript {
@@ -19,8 +20,16 @@ allprojects {
         mavenCentral()
         maven("https://jitpack.io")
     }
-}
 
-tasks.register("clean", Delete::class) {
-    delete(rootProject.buildDir)
+    apply(plugin = "com.diffplug.spotless")
+
+    spotless {
+        kotlin {
+            target("**/*.kt")
+            ktlint(libs.versions.ktlint.get())
+        }
+        kotlinGradle {
+            ktlint(libs.versions.ktlint.get())
+        }
+    }
 }

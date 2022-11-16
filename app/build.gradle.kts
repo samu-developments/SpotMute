@@ -3,6 +3,7 @@ import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 plugins {
     id("com.android.application")
     kotlin("android")
+    alias(libs.plugins.spotless)
 }
 
 android {
@@ -37,7 +38,7 @@ android {
         }
     }
 
-    lintOptions{
+    lintOptions {
         disable("MissingTranslation")
     }
     buildToolsVersion = "31.0.0"

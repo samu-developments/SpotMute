@@ -1,6 +1,10 @@
 package com.developments.samu.muteforspotify.service
 
-import android.app.*
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
@@ -19,9 +23,16 @@ import com.developments.samu.muteforspotify.MuteWidget
 import com.developments.samu.muteforspotify.R
 import com.developments.samu.muteforspotify.data.Song
 import com.developments.samu.muteforspotify.data.isDuplicateOf
-import com.developments.samu.muteforspotify.utilities.*
-import kotlinx.coroutines.*
-
+import com.developments.samu.muteforspotify.utilities.Spotify
+import com.developments.samu.muteforspotify.utilities.hasDbsEnabled
+import com.developments.samu.muteforspotify.utilities.toLocalDateTime
+import com.developments.samu.muteforspotify.utilities.toReadableString
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private const val TAG = "LoggerService"
 
@@ -104,7 +115,7 @@ class LoggerService : Service() {
             setSmallIcon(R.drawable.ic_tile_volume_off)
             setContentIntent(notifPendingIntentClick)
             addAction(notifActionStop)
-            addAction(createActionMute(muted))  // dynamically add mute/unmute action
+            addAction(createActionMute(muted)) // dynamically add mute/unmute action
         }
 
     // notification action 'mute'
@@ -123,7 +134,7 @@ class LoggerService : Service() {
         // check if song is not finished playing, in that case set a new mute timer
         val timeLeft = lastSong.timeFinish - System.currentTimeMillis()
         if (timeLeft > 0) {
-            setMuteTimer(timeLeft + getMuteDelay())  // set a new mute timer, if song still playing
+            setMuteTimer(timeLeft + getMuteDelay()) // set a new mute timer, if song still playing
         }
     }
 
@@ -141,9 +152,9 @@ class LoggerService : Service() {
         registerReceiver(
             spotifyReceiver,
             Spotify.INTENT_FILTER
-        )  // start backgroundReceiver for picking up Spotify intents
+        ) // start backgroundReceiver for picking up Spotify intents
         createBaseNotification(muted = false).apply {
-            setContentTitle(getString(R.string.notif_error_detecting_ads))  // not detected any songs yet, show warning
+            setContentTitle(getString(R.string.notif_error_detecting_ads)) // not detected any songs yet, show warning
             setContentText(getString(R.string.notif_error_broadcast, getString(R.string.settings_broadcast_status_title)))
         }.also {
             startForeground(NOTIFICATION_ID, it.build())
@@ -204,11 +215,11 @@ class LoggerService : Service() {
 
         handleDeviceBroadcastStatusState()
 
-        lastSong = song  // keep track of the last logged song
+        lastSong = song // keep track of the last logged song
 
         when {
-            song.playing -> handleNewSongPlaying(song)  // ned to set new timer, and after an ad unmute device
-            else -> handleSongNotPlaying(song)  // need to remove timer
+            song.playing -> handleNewSongPlaying(song) // ned to set new timer, and after an ad unmute device
+            else -> handleSongNotPlaying(song) // need to remove timer
         }
     }
 
@@ -216,7 +227,7 @@ class LoggerService : Service() {
     private fun handleSongNotPlaying(song: Song) {
         Log.d(TAG, "Handle song not playing")
         loggerScope.coroutineContext.cancelChildren()
-        setNotificationStatus(song, isMuted)  // could be muted (user paused an ad)
+        setNotificationStatus(song, isMuted) // could be muted (user paused an ad)
     }
 
     private fun handleNewSongPlaying(newSong: Song) {
@@ -298,10 +309,14 @@ class LoggerService : Service() {
     private fun setNotificationStatus(song: Song, mutingSong: Boolean) {
         createBaseNotification(mutingSong).apply {
             setContentTitle(
-                if (mutingSong) getString(R.string.notif_content_muting) else getString(
-                    R.string.notif_content_listening,
-                    adsMutedCounter
-                )
+                if (mutingSong) {
+                    getString(R.string.notif_content_muting)
+                } else {
+                    getString(
+                        R.string.notif_content_listening,
+                        adsMutedCounter
+                    )
+                }
             )
             setContentText(
                 getString(
@@ -310,20 +325,20 @@ class LoggerService : Service() {
                     song.track
                 )
             )
-        }.also { NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, it.build()) }
+        }.let { NotificationManagerCompat.from(this).notify(NOTIFICATION_ID, it.build()) }
     }
 
     private fun updateWidgets(context: Context) {
         Intent(context, MuteWidget::class.java).apply {
             action = MuteWidget.ON_UPDATE_WIDGET
-        }.also { sendBroadcast(it) }
+        }.let { sendBroadcast(it) }
     }
 
     override fun onDestroy() {
         try {
             // Throws if not started
             unregisterReceiver(spotifyReceiver)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
         }
         running = false
         loggerScope.cancel()
@@ -351,7 +366,7 @@ class LoggerService : Service() {
         const val PREF_DEVICE_BROADCAST_ENABLED_DEFAULT = false
         const val DELAY_LOG_NEW_AD = 5000L
 
-        fun isServiceRunning() = running  // used in tileservice etc.
+        fun isServiceRunning() = running // used in tileservice etc.
 
         // Needs only to be called once (application startup)
         @RequiresApi(Build.VERSION_CODES.O)

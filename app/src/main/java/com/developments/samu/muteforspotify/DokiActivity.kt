@@ -4,8 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import dev.doubledot.doki.views.DokiContentView
 
-
-class DokiThemedActivity : AppCompatActivity() {
+class DokiActivity : AppCompatActivity() {
 
     private val dokiContent: DokiContentView? by lazy {
         findViewById(R.id.doki_content)

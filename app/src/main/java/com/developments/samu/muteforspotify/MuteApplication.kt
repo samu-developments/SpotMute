@@ -8,7 +8,7 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 class MuteApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        AndroidThreeTen.init(this);
+        AndroidThreeTen.init(this)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             LoggerService.createNotificationChannel(this)
         }

@@ -7,7 +7,6 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.core.content.ContextCompat
 
-
 @TargetApi(24)
 class MuteTileService : TileService() {
 
@@ -19,15 +18,15 @@ class MuteTileService : TileService() {
         toggleTile(LoggerService.isServiceRunning())
         super.onStartListening()
     }
-    
+
     override fun onClick() {
         // tile can be quite unresponsive, a click can be registered several seconds after happening.
         if (qsTile?.state == Tile.STATE_INACTIVE) {
             ContextCompat.startForegroundService(this, loggerServiceIntentForeground)
-            toggleTile(on=true)
+            toggleTile(on = true)
         } else {
             this.stopService(loggerServiceIntentForeground)
-            toggleTile(on=false)
+            toggleTile(on = false)
         }
         super.onClick()
     }
@@ -39,5 +38,3 @@ class MuteTileService : TileService() {
         }
     }
 }
-
-

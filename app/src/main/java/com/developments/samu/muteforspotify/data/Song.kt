@@ -1,9 +1,7 @@
 package com.developments.samu.muteforspotify.data
 
-import com.developments.samu.muteforspotify.utilities.AppUtil
 import org.threeten.bp.Duration
 import kotlin.math.absoluteValue
-
 
 data class Song(
     val id: String = "",
@@ -22,8 +20,7 @@ data class Song(
 }
 
 fun Song.isDuplicateOf(old: Song): Boolean {
-    return this.id == old.id &&             // "Same song" if: Same id
-            this.playing == old.playing && // both playing or both paused,
-            (this.timeSent - old.timeSent).absoluteValue < Duration.ofSeconds(5).toMillis() // the timeSent delta is not too long
+    return this.id == old.id && // "Same song" if: Same id
+        this.playing == old.playing && // both playing or both paused,
+        (this.timeSent - old.timeSent).absoluteValue < Duration.ofSeconds(5).toMillis() // the timeSent delta is not too long
 }
-

@@ -1,8 +1,10 @@
 [versions]
 kotlin = "1.7.20"
 gradle = "7.3.1"
+ktlint = "0.47.1"
 
 [plugins]
+spotless = { id = "com.diffplug.spotless", version = "6.11.0" }
 
 [libraries]
 kotlin-stdlib-jdk7 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk7", version.ref = "kotlin" }
