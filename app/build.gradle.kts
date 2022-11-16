@@ -3,16 +3,15 @@ import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 plugins {
     id("com.android.application")
     kotlin("android")
-    alias(libs.plugins.spotless)
 }
 
 android {
     namespace = "com.developments.samu.muteforspotify"
-    compileSdkVersion(33)
+    compileSdk = 33
     defaultConfig {
         applicationId = "com.developments.samu.muteforspotify"
-        minSdkVersion(23)
-        targetSdkVersion(33)
+        minSdk = 23
+        targetSdk = 33
         versionCode = 43
         versionName = "2.0.3"
     }
@@ -38,9 +37,10 @@ android {
         }
     }
 
-    lintOptions {
-        disable("MissingTranslation")
+    lint {
+        disable += "MissingTranslation"
     }
+
     buildToolsVersion = "31.0.0"
 }
 
