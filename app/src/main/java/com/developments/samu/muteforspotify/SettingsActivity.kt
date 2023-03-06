@@ -34,12 +34,7 @@ class SettingsActivity : AppCompatActivity() {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             super.onViewCreated(view, savedInstanceState)
 
-            val mutePref: EditTextPreference? =
-                this.findPreference(getString(R.string.settings_mute_key))
-            val unmutePref: EditTextPreference? =
-                this.findPreference(getString(R.string.settings_unmute_key))
-
-            mutePref?.apply {
+            this.findPreference<EditTextPreference>(getString(R.string.settings_mute_key))?.apply {
                 setOnBindEditTextListener { editText ->
                     editText.inputType = InputType.TYPE_CLASS_NUMBER or TYPE_NUMBER_FLAG_SIGNED
                 }
@@ -51,7 +46,7 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
 
-            unmutePref?.apply {
+            this.findPreference<EditTextPreference>(getString(R.string.settings_unmute_key))?.apply {
                 setOnBindEditTextListener { editText ->
                     editText.inputType = InputType.TYPE_CLASS_NUMBER or TYPE_NUMBER_FLAG_SIGNED
                 }
