@@ -166,12 +166,6 @@ class MainActivity : AppCompatActivity(), BroadcastDialogFragment.BroadcastDialo
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         with(menu) {
-            findItem(R.id.menu_dkma).apply {
-                setOnMenuItemClickListener {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppUtil.DKMA_URL)))
-                    true
-                }
-            }
             findItem(R.id.menu_rate).apply {
                 setOnMenuItemClickListener {
                     Intent(Intent.ACTION_VIEW).apply {

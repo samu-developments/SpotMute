@@ -1,12 +1,16 @@
 package com.developments.samu.muteforspotify
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.text.InputType
 import android.text.InputType.TYPE_NUMBER_FLAG_SIGNED
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.EditTextPreference
+import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import com.developments.samu.muteforspotify.utilities.AppUtil
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -56,6 +60,13 @@ class SettingsActivity : AppCompatActivity() {
                         isNotBlank()
                         toLongOrNull() != null
                     }
+                }
+            }
+
+            this.findPreference<Preference>(getString(R.string.settings_doki_key))?.apply {
+                setOnPreferenceClickListener {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(AppUtil.DKMA_URL)))
+                    true
                 }
             }
         }

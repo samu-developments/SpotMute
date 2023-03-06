@@ -68,9 +68,12 @@
     <string name="settings_unmute_key">unmute_delay_v3</string>
     <string name="settings_mute_key">mute_delay_v3</string>
     <string name="settings_use_lowest_volume_key">lowest_volume</string>
+    <string name="settings_doki_key">doki_key</string>
     <string name="settings_use_lowest_volume_title">DON\'T SHOUT!</string>
     <string name="settings_use_lowest_volume_summary">Instead of muting ads, silence them on the lowest volume level.</string>
     <string name="toast_service_could_not_start_error">Could not start service, please try again!</string>
+    <string name="settings_doki_title">dontkillmyapp.com</string>
+    <string name="settings_doki_summary">Open dontkillmyapp.com to read more about battery optimizations.</string>
 
     <string name="settings_broadcast_status_title">Device Broadcast Status</string>
 </resources>
