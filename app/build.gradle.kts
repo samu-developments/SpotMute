@@ -12,8 +12,8 @@ android {
         applicationId = "com.developments.samu.muteforspotify"
         minSdk = 23
         targetSdk = 33
-        versionCode = 43
-        versionName = "2.0.3"
+        versionCode = 44
+        versionName = "2.0.4"
     }
     kotlinOptions {
         jvmTarget = "1.8"
@@ -41,7 +41,7 @@ android {
         disable += "MissingTranslation"
     }
 
-    buildToolsVersion = "31.0.0"
+    buildToolsVersion = "33.0.0"
 }
 
 dependencies {
