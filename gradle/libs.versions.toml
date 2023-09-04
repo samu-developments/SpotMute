@@ -1,8 +1,8 @@
 [versions]
-kotlin = "1.8.10"
-gradle = "7.4.2"
+kotlin = "1.9.10"
+gradle = "8.1.1"
 ktlint = "0.48.2"
-viewmodel = "2.5.1"
+viewmodel = "2.6.1"
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version = "6.16.0" }
@@ -10,16 +10,16 @@ spotless = { id = "com.diffplug.spotless", version = "6.16.0" }
 [libraries]
 kotlin-stdlib-jdk7 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk7", version.ref = "kotlin" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version = "1.6.1" }
-androidx-core-ktx = { module = "androidx.core:core-ctx", version = "1.9.0" }
+androidx-core-ktx = { module = "androidx.core:core-ctx", version = "1.10.1" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version = "2.1.4" }
-androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version = "1.2.0" }
+androidx-preference-ktx = { module = "androidx.preference:preference-ktx", version = "1.2.1" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel", version.ref = "viewmodel" }
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "viewmodel" }
-google-android-material = { module = "com.google.android.material:material", version = "1.7.0" }
+google-android-material = { module = "com.google.android.material:material", version = "1.9.0" }
 google-android-play-core-ktx = { module = "com.google.android.play:core-ktx", version = "1.8.1" }
-jetbrains-kotlinx-couroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.6.4" }
+jetbrains-kotlinx-couroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.7.3" }
 doubledot-doki = { module = "dev.doubledot.doki:library", version = "0.0.1" }
-threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version = "1.4.4" }
+threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version = "1.4.6" }
 
 android-build-tools-gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
