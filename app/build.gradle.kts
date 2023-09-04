@@ -12,8 +12,8 @@ android {
         applicationId = "com.developments.samu.muteforspotify"
         minSdk = 23
         targetSdk = 33
-        versionCode = 45
-        versionName = "2.0.5"
+        versionCode = 46
+        versionName = "2.0.6"
     }
     kotlinOptions {
         jvmTarget = "1.8"
@@ -26,7 +26,7 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
         }
     }
 
